@@ -19,7 +19,7 @@
     --brand-orange-light: #FFA05C;
     --paper: #F7F9FC;
   }
-  body { font-family: 'Inter', sans-serif; overscroll-behavior-y: contain; background: var(--paper); }
+  body { font-family: 'Inter', sans-serif; overscroll-behavior-y: contain; background: #0B1220; color: #E2E8F0; }
   .mono { font-family: 'JetBrains Mono', monospace; }
   html { scroll-behavior: smooth; }
   .card-hover { transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -75,23 +75,17 @@
   .source-groq { background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; }
 </style>
 </head>
-<body class="text-slate-800 min-h-screen flex flex-col relative">
+<body class="text-slate-200 min-h-screen flex flex-col relative">
 
-<header class="bg-white/90 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-40">
+<header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-700/60 sticky top-0 z-40">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
     <a href="#" class="flex items-center gap-3 group">
       <div class="relative w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center shadow-md" style="background: linear-gradient(135deg, #0F4C8C 0%, #0A3A6B 100%);">
-        <svg viewBox="0 0 32 32" fill="none" class="w-6 h-6">
-          <path d="M16 3L5 9v4l11 6 11-6V9L16 3z" fill="#E8761C"/>
-          <path d="M5 9v4l11 6V13L5 9z" fill="#0F4C8C"/>
-          <path d="M27 9v4l-11 6V13l11-4z" fill="#1B6BB5"/>
-          <path d="M5 15v4l11 6V19L5 15z" fill="#0A3A6B"/>
-          <path d="M27 15v4l-11 6V19l11-4z" fill="#0F4C8C"/>
-        </svg>
+        <img src="logo.png" alt="DBS" class="w-6 h-6 object-contain" onerror="this.style.display='none'">
       </div>
       <div class="hidden sm:block">
-        <div class="text-base font-black text-slate-900 leading-tight tracking-tight">DBS</div>
-        <div class="text-[10px] text-slate-500 leading-tight font-medium">Diversified Building Services</div>
+        <div class="text-base font-black text-white leading-tight tracking-tight">DBS</div>
+        <div class="text-[10px] text-slate-400 leading-tight font-medium">Diversified Building Services</div>
       </div>
     </a>
     <div class="flex items-center gap-2">
@@ -121,19 +115,19 @@
   </section>
 
   <section id="catalogo" class="space-y-5">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-700">
       <div>
-        <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Productos disponibles</h2>
-        <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Haz clic en cualquier producto para consultar a VIERNES</p>
+        <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight">Productos disponibles</h2>
+        <p class="text-xs sm:text-sm text-slate-400 mt-0.5">Haz clic en cualquier producto para consultar a VIERNES</p>
       </div>
-      <div id="contadorResultados" class="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-full self-start sm:self-auto"></div>
+      <div id="contadorResultados" class="text-xs font-bold text-slate-300 bg-slate-800 px-3 py-1.5 rounded-full self-start sm:self-auto border border-slate-700"></div>
     </div>
     <div class="flex flex-wrap gap-2">
-      <button onclick="filtrar('todas')" data-cat="todas" class="cat-btn active inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-200 bg-white text-slate-600 hover:border-slate-400 transition-all active:scale-95"><i class="fa-solid fa-layer-group text-[10px]"></i> Todos</button>
-      <button onclick="filtrar('baños')" data-cat="baños" class="cat-btn inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-200 bg-white text-slate-600 hover:border-slate-400 transition-all active:scale-95"><i class="fa-solid fa-toilet text-[10px]"></i> Baños</button>
-      <button onclick="filtrar('pisos')" data-cat="pisos" class="cat-btn inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-200 bg-white text-slate-600 hover:border-slate-400 transition-all active:scale-95"><i class="fa-solid fa-broom text-[10px]"></i> Pisos</button>
-      <button onclick="filtrar('vidrios')" data-cat="vidrios" class="cat-btn inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-200 bg-white text-slate-600 hover:border-slate-400 transition-all active:scale-95"><i class="fa-solid fa-spray-can text-[10px]"></i> Vidrios</button>
-      <button onclick="filtrar('especializado')" data-cat="especializado" class="cat-btn inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-200 bg-white text-slate-600 hover:border-slate-400 transition-all active:scale-95"><i class="fa-solid fa-flask text-[10px]"></i> Especializados</button>
+      <button onclick="filtrar('todas')" data-cat="todas" class="cat-btn active inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-700 bg-slate-800 text-slate-300 hover:border-slate-500 transition-all active:scale-95"><i class="fa-solid fa-layer-group text-[10px]"></i> Todos</button>
+      <button onclick="filtrar('baños')" data-cat="baños" class="cat-btn inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-700 bg-slate-800 text-slate-300 hover:border-slate-500 transition-all active:scale-95"><i class="fa-solid fa-toilet text-[10px]"></i> Baños</button>
+      <button onclick="filtrar('pisos')" data-cat="pisos" class="cat-btn inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-700 bg-slate-800 text-slate-300 hover:border-slate-500 transition-all active:scale-95"><i class="fa-solid fa-broom text-[10px]"></i> Pisos</button>
+      <button onclick="filtrar('vidrios')" data-cat="vidrios" class="cat-btn inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-700 bg-slate-800 text-slate-300 hover:border-slate-500 transition-all active:scale-95"><i class="fa-solid fa-spray-can text-[10px]"></i> Vidrios</button>
+      <button onclick="filtrar('especializado')" data-cat="especializado" class="cat-btn inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-700 bg-slate-800 text-slate-300 hover:border-slate-500 transition-all active:scale-95"><i class="fa-solid fa-flask text-[10px]"></i> Especializados</button>
     </div>
     <div id="quimicosGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
   </section>
@@ -167,7 +161,7 @@
 </footer>
 
 <aside class="fixed bottom-4 right-4 z-50 flex flex-col items-end safe-bottom">
-  <div id="chatWindow" class="hidden w-[95vw] sm:w-[440px] h-[640px] max-h-[90vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden mb-3 border border-slate-200">
+  <div id="chatWindow" class="hidden w-[95vw] sm:w-[440px] h-[640px] max-h-[90vh] bg-slate-900 rounded-2xl shadow-2xl flex flex-col overflow-hidden mb-3 border border-slate-700">
     <div class="p-4 flex items-center justify-between shrink-0 text-white relative overflow-hidden" style="background: linear-gradient(135deg, #0A3A6B 0%, #0F4C8C 50%, #1B6BB5 100%);">
       <div class="absolute inset-0 dot-grid opacity-20"></div>
       <div class="relative flex items-center gap-3">
@@ -202,35 +196,35 @@
       <div id="diagResultados"></div>
     </div>
 
-    <div id="chatMessages" class="flex-grow p-4 overflow-y-auto custom-scrollbar space-y-3" style="background: linear-gradient(180deg, #F7F9FC 0%, #EFF6FF 100%);">
+    <div id="chatMessages" class="flex-grow p-4 overflow-y-auto custom-scrollbar space-y-3" style="background: linear-gradient(180deg, #0B1220 0%, #111C33 100%);">
       <div class="flex items-start gap-3">
         <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 shadow-md" style="background: linear-gradient(135deg, #E8761C, #C75F0F);">
           <i class="fa-solid fa-brain text-white text-sm"></i>
         </div>
-        <div class="bg-white border border-slate-200 rounded-2xl rounded-tl-md p-4 text-xs space-y-3 shadow-sm w-full">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl rounded-tl-md p-4 text-xs space-y-3 shadow-sm w-full">
           <div class="flex items-center gap-2">
             <span class="text-[10px] font-black tracking-widest" style="color: var(--brand-orange);">VIERNES</span>
             <span class="text-[10px] text-slate-400">·</span>
             <span class="text-[10px] text-slate-400">Base técnica local + IA</span>
           </div>
-          <p class="font-bold text-slate-900 text-sm">¡Hola! 👋</p>
-          <p class="text-slate-600 leading-relaxed">Tengo información técnica completa de cada químico: dosis, tiempos, patógenos, primeros auxilios, compatibilidades y más. Pregúntame lo que necesites.</p>
+          <p class="font-bold text-white text-sm">¡Hola! 👋</p>
+          <p class="text-slate-300 leading-relaxed">Tengo información técnica completa de cada químico: dosis, tiempos, patógenos, primeros auxilios, compatibilidades y más. Pregúntame lo que necesites.</p>
           <div class="flex flex-wrap gap-1.5 pt-1">
-            <button onclick="enviarMensajeRapido('¿Cómo diluyo AF79?')" class="text-[10px] bg-slate-50 hover:text-white font-semibold px-2.5 py-1.5 rounded-lg border border-slate-200 transition-all" onmouseover="this.style.background='#0F4C8C'" onmouseout="this.style.background=''">💧 Dilución AF79</button>
-            <button onclick="enviarMensajeRapido('¿Qué mata AF79?')" class="text-[10px] bg-slate-50 hover:text-white font-semibold px-2.5 py-1.5 rounded-lg border border-slate-200 transition-all" onmouseover="this.style.background='#0F4C8C'" onmouseout="this.style.background=''">🦠 Qué mata AF79</button>
-            <button onclick="enviarMensajeRapido('¿Cómo aplico CLR en bebederos?')" class="text-[10px] bg-slate-50 hover:text-white font-semibold px-2.5 py-1.5 rounded-lg border border-slate-200 transition-all" onmouseover="this.style.background='#0F4C8C'" onmouseout="this.style.background=''">🚰 CLR bebederos</button>
-            <button onclick="enviarMensajeRapido('¿En qué no debo usar CLR?')" class="text-[10px] bg-slate-50 hover:text-white font-semibold px-2.5 py-1.5 rounded-lg border border-slate-200 transition-all" onmouseover="this.style.background='#0F4C8C'" onmouseout="this.style.background=''">🚫 CLR prohibido</button>
-            <button onclick="enviarMensajeRapido('Primeros auxilios CLR en ojos')" class="text-[10px] bg-slate-50 hover:text-white font-semibold px-2.5 py-1.5 rounded-lg border border-slate-200 transition-all" onmouseover="this.style.background='#0F4C8C'" onmouseout="this.style.background=''">🚨 Primeros auxilios</button>
-            <button onclick="enviarMensajeRapido('¿Cómo quito moho en duchas?')" class="text-[10px] bg-slate-50 hover:text-white font-semibold px-2.5 py-1.5 rounded-lg border border-slate-200 transition-all" onmouseover="this.style.background='#0F4C8C'" onmouseout="this.style.background=''">🚿 Moho duchas</button>
-            <button onclick="enviarMensajeRapido('Compara AF79 y pH7Q')" class="text-[10px] bg-slate-50 hover:text-white font-semibold px-2.5 py-1.5 rounded-lg border border-slate-200 transition-all" onmouseover="this.style.background='#0F4C8C'" onmouseout="this.style.background=''">⚖️ AF79 vs pH7Q</button>
+            <button onclick="enviarMensajeRapido('¿Cómo diluyo AF79?')" class="text-[10px] bg-slate-800 hover:text-white font-semibold px-2.5 py-1.5 rounded-lg border border-slate-700 transition-all" onmouseover="this.style.background='#0F4C8C'" onmouseout="this.style.background=''">💧 Dilución AF79</button>
+            <button onclick="enviarMensajeRapido('¿Qué mata AF79?')" class="text-[10px] bg-slate-800 hover:text-white font-semibold px-2.5 py-1.5 rounded-lg border border-slate-700 transition-all" onmouseover="this.style.background='#0F4C8C'" onmouseout="this.style.background=''">🦠 Qué mata AF79</button>
+            <button onclick="enviarMensajeRapido('¿Cómo aplico CLR en bebederos?')" class="text-[10px] bg-slate-800 hover:text-white font-semibold px-2.5 py-1.5 rounded-lg border border-slate-700 transition-all" onmouseover="this.style.background='#0F4C8C'" onmouseout="this.style.background=''">🚰 CLR bebederos</button>
+            <button onclick="enviarMensajeRapido('¿En qué no debo usar CLR?')" class="text-[10px] bg-slate-800 hover:text-white font-semibold px-2.5 py-1.5 rounded-lg border border-slate-700 transition-all" onmouseover="this.style.background='#0F4C8C'" onmouseout="this.style.background=''">🚫 CLR prohibido</button>
+            <button onclick="enviarMensajeRapido('Primeros auxilios CLR en ojos')" class="text-[10px] bg-slate-800 hover:text-white font-semibold px-2.5 py-1.5 rounded-lg border border-slate-700 transition-all" onmouseover="this.style.background='#0F4C8C'" onmouseout="this.style.background=''">🚨 Primeros auxilios</button>
+            <button onclick="enviarMensajeRapido('¿Cómo quito moho en duchas?')" class="text-[10px] bg-slate-800 hover:text-white font-semibold px-2.5 py-1.5 rounded-lg border border-slate-700 transition-all" onmouseover="this.style.background='#0F4C8C'" onmouseout="this.style.background=''">🚿 Moho duchas</button>
+            <button onclick="enviarMensajeRapido('Compara AF79 y pH7Q')" class="text-[10px] bg-slate-800 hover:text-white font-semibold px-2.5 py-1.5 rounded-lg border border-slate-700 transition-all" onmouseover="this.style.background='#0F4C8C'" onmouseout="this.style.background=''">⚖️ AF79 vs pH7Q</button>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="p-3 bg-white border-t border-slate-200 shrink-0 safe-bottom">
+    <div class="p-3 bg-slate-900 border-t border-slate-700 shrink-0 safe-bottom">
       <form onsubmit="enviarMensaje(event)" class="flex items-center gap-2">
-        <input type="text" id="chatInput" placeholder="Pregúntale a VIERNES…" class="flex-grow px-4 py-3 bg-slate-100 border border-transparent rounded-xl text-xs focus:outline-none focus:ring-2 focus:bg-white transition-all min-w-0">
+        <input type="text" id="chatInput" placeholder="Pregúntale a VIERNES…" class="flex-grow px-4 py-3 bg-slate-800 border border-slate-700 text-white rounded-xl text-xs focus:outline-none focus:ring-2 focus:bg-slate-900 transition-all min-w-0">
         <button type="submit" class="p-3 text-white rounded-xl transition-all shrink-0 active:scale-95 shadow-md" style="background: linear-gradient(135deg, #0F4C8C, #1B6BB5);">
           <i class="fa-solid fa-arrow-up text-sm"></i>
         </button>
@@ -473,7 +467,7 @@ function renderizarGaleria() {
 
   filtrados.forEach(prod => {
     const card = document.createElement("article");
-    card.className = "card-hover group bg-white rounded-2xl border border-slate-200 overflow-hidden flex flex-col";
+    card.className = "card-hover group bg-slate-900 rounded-2xl border border-slate-700 overflow-hidden flex flex-col";
     const catStyles = {
       'baños': { bg: '#E0F2FE', color: '#0369A1' },
       'pisos': { bg: '#D1FAE5', color: '#047857' },
@@ -483,29 +477,29 @@ function renderizarGaleria() {
     const cat = catStyles[prod.categoria] || { bg: '#F1F5F9', color: '#475569' };
 
     card.innerHTML = `
-      <div class="relative h-52 bg-slate-50 flex items-center justify-center overflow-hidden border-b border-slate-100">
+      <div class="relative h-52 bg-slate-800 flex items-center justify-center overflow-hidden border-b border-slate-700">
         <span class="absolute top-3 left-3 z-10 text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full" style="background: ${cat.bg}; color: ${cat.color};">${prod.categoria}</span>
         <img src="${prod.imagen}" alt="${prod.nombre}" class="prod-img max-h-[85%] max-w-[85%] object-contain drop-shadow-md" onerror="this.onerror=null; this.src='${svgPlaceholder(prod.nombre)}'">
       </div>
       <div class="p-4 flex-grow flex flex-col gap-3">
         <div>
           <div class="text-[10px] font-bold uppercase tracking-wider mb-0.5" style="color: var(--brand-orange);">${prod.fabricante}</div>
-          <h3 class="text-base font-black text-slate-900 leading-tight">${prod.nombre}</h3>
-          <div class="text-[11px] text-slate-500 mt-1">${prod.clasificacion}</div>
+          <h3 class="text-base font-black text-white leading-tight">${prod.nombre}</h3>
+          <div class="text-[11px] text-slate-400 mt-1">${prod.clasificacion}</div>
         </div>
-        <div class="rounded-xl p-3 border" style="background: #EFF6FF; border-color: #DBEAFE;">
-          <div class="text-[10px] font-bold uppercase tracking-wider mb-1" style="color: var(--brand-blue);">Uso principal</div>
-          <div class="text-xs font-semibold text-slate-800 leading-relaxed">${prod.uso}</div>
+        <div class="rounded-xl p-3 border" style="background: #0F1E33; border-color: #1E3A5F;">
+          <div class="text-[10px] font-bold uppercase tracking-wider mb-1" style="color: #5EA8F0;">Uso principal</div>
+          <div class="text-xs font-semibold text-slate-200 leading-relaxed">${prod.uso}</div>
         </div>
         <div class="grid grid-cols-3 gap-2">
-          <div class="text-center"><div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">pH</div><div class="text-[10px] font-bold text-slate-700 mt-0.5 mono">${prod.ph.split(' ')[0]}</div></div>
-          <div class="text-center border-x border-slate-100"><div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Dilución</div><div class="text-[10px] font-bold text-slate-700 mt-0.5 mono">${prod.dilucion.split(':')[0]}</div></div>
-          <div class="text-center"><div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Tiempo</div><div class="text-[10px] font-bold text-slate-700 mt-0.5 mono">${prod.tiempo.split(' ')[0]}</div></div>
+          <div class="text-center"><div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">pH</div><div class="text-[10px] font-bold text-slate-300 mt-0.5 mono">${prod.ph.split(' ')[0]}</div></div>
+          <div class="text-center border-x border-slate-700"><div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Dilución</div><div class="text-[10px] font-bold text-slate-300 mt-0.5 mono">${prod.dilucion.split(':')[0]}</div></div>
+          <div class="text-center"><div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Tiempo</div><div class="text-[10px] font-bold text-slate-300 mt-0.5 mono">${prod.tiempo.split(' ')[0]}</div></div>
         </div>
         ${prod.fastDraw ? `<div class="flex items-center gap-2 text-[10px] font-semibold rounded-lg px-2.5 py-1.5 border" style="background: #FEF7EC; border-color: #F9D8A8; color: var(--brand-orange-dark);"><i class="fa-solid fa-gears"></i> Requiere FastDraw ${prod.fastDrawNum || ''}</div>` : ''}
       </div>
       <div class="p-4 pt-0">
-        <button onclick="preguntar('${prod.nombre.replace(/'/g, "\\'")}')" class="w-full py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 active:scale-95 border" style="background: #F7F9FC; border-color: #E2E8F0; color: #334155;" onmouseover="this.style.background='#0F4C8C';this.style.color='white';this.style.borderColor='#0F4C8C'" onmouseout="this.style.background='#F7F9FC';this.style.color='#334155';this.style.borderColor='#E2E8F0'">
+        <button onclick="preguntar('${prod.nombre.replace(/'/g, "\\'")}')" class="w-full py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 active:scale-95 border" style="background: #111C33; border-color: #1E3A5F; color: #CBD5E1;" onmouseover="this.style.background='#0F4C8C';this.style.color='white';this.style.borderColor='#0F4C8C'" onmouseout="this.style.background='#111C33';this.style.color='#CBD5E1';this.style.borderColor='#1E3A5F'">
           <i class="fa-solid fa-brain" style="color: var(--brand-orange);"></i> Consultar a VIERNES
         </button>
       </div>
@@ -565,10 +559,10 @@ function buscarProducto(texto) {
 
 function cardProductoChat(p) {
   return `<div class="rounded-xl p-2.5 flex items-center gap-3 mt-2 border" style="background: #F7F9FC; border-color: #E2E8F0;">
-    <div class="w-12 h-12 rounded-lg bg-white border border-slate-200 flex items-center justify-center overflow-hidden shrink-0">
+    <div class="w-12 h-12 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center overflow-hidden shrink-0">
       <img src="${p.imagen}" class="w-full h-full object-contain p-1" onerror="this.onerror=null; this.src='${svgPlaceholder(p.nombre)}'">
     </div>
-    <div class="flex-grow min-w-0"><div class="font-bold text-slate-900 text-[11px] truncate">${p.nombre}</div><div class="text-[10px] text-slate-500 truncate">${p.uso}</div></div>
+    <div class="flex-grow min-w-0"><div class="font-bold text-white text-[11px] truncate">${p.nombre}</div><div class="text-[10px] text-slate-500 truncate">${p.uso}</div></div>
   </div>`;
 }
 
@@ -618,11 +612,11 @@ function intentarRespuestaLocal(texto) {
     const p1 = match[0], p2 = match[1];
     return { exito: true, respuesta: `<b>⚖️ Comparativa: ${p1.nombre} vs ${p2.nombre}</b><br><br>
     <table class="w-full text-[10px] border-collapse">
-      <tr class="border-b border-slate-200"><td class="py-1.5 font-bold">Aspecto</td><td class="py-1.5 font-bold">${p1.nombre}</td><td class="py-1.5 font-bold">${p2.nombre}</td></tr>
-      <tr class="border-b border-slate-100"><td class="py-1.5 text-slate-500">pH</td><td class="py-1.5">${p1.ph}</td><td class="py-1.5">${p2.ph}</td></tr>
-      <tr class="border-b border-slate-100"><td class="py-1.5 text-slate-500">Dilución</td><td class="py-1.5">${p1.dilucion}</td><td class="py-1.5">${p2.dilucion}</td></tr>
-      <tr class="border-b border-slate-100"><td class="py-1.5 text-slate-500">Tiempo</td><td class="py-1.5">${p1.tiempo}</td><td class="py-1.5">${p2.tiempo}</td></tr>
-      <tr class="border-b border-slate-100"><td class="py-1.5 text-slate-500">Uso</td><td class="py-1.5">${p1.uso}</td><td class="py-1.5">${p2.uso}</td></tr>
+      <tr class="border-b border-slate-700"><td class="py-1.5 font-bold">Aspecto</td><td class="py-1.5 font-bold">${p1.nombre}</td><td class="py-1.5 font-bold">${p2.nombre}</td></tr>
+      <tr class="border-b border-slate-700"><td class="py-1.5 text-slate-500">pH</td><td class="py-1.5">${p1.ph}</td><td class="py-1.5">${p2.ph}</td></tr>
+      <tr class="border-b border-slate-700"><td class="py-1.5 text-slate-500">Dilución</td><td class="py-1.5">${p1.dilucion}</td><td class="py-1.5">${p2.dilucion}</td></tr>
+      <tr class="border-b border-slate-700"><td class="py-1.5 text-slate-500">Tiempo</td><td class="py-1.5">${p1.tiempo}</td><td class="py-1.5">${p2.tiempo}</td></tr>
+      <tr class="border-b border-slate-700"><td class="py-1.5 text-slate-500">Uso</td><td class="py-1.5">${p1.uso}</td><td class="py-1.5">${p2.uso}</td></tr>
       <tr><td class="py-1.5 text-slate-500">FastDraw</td><td class="py-1.5">${p1.fastDraw ? "SÍ "+(p1.fastDrawNum||"") : "No"}</td><td class="py-1.5">${p2.fastDraw ? "SÍ "+(p2.fastDrawNum||"") : "No"}</td></tr>
     </table><br>
     <b>Recomendación:</b> Usa ${p1.nombre} para ${p1.uso.toLowerCase()} y ${p2.nombre} para ${p2.uso.toLowerCase()}.` };
@@ -901,9 +895,9 @@ async function enviarMensaje(e) {
     bm.innerHTML = `<div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 shadow-md" style="background: linear-gradient(135deg, #E8761C, #C75F0F);">
         <i class="fa-solid fa-brain text-white text-sm"></i>
       </div>
-      <div class="bg-white border border-slate-200 rounded-2xl rounded-tl-md p-3.5 text-xs shadow-sm w-full">
-        <div class="text-slate-800 leading-relaxed">${local.respuesta}</div>
-        <div class="mt-2 pt-2 border-t border-slate-100 flex items-center gap-2">
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl rounded-tl-md p-3.5 text-xs shadow-sm w-full">
+        <div class="text-slate-200 leading-relaxed">${local.respuesta}</div>
+        <div class="mt-2 pt-2 border-t border-slate-700 flex items-center gap-2">
           <span class="source-badge source-local"><i class="fa-solid fa-database"></i> Base local</span>
           <span class="text-[9px] text-slate-400">Respuesta instantánea</span>
         </div>
@@ -920,7 +914,7 @@ async function enviarMensaje(e) {
   bm.innerHTML = `<div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 shadow-md" style="background: linear-gradient(135deg, #E8761C, #C75F0F);">
       <i class="fa-solid fa-brain text-white text-sm"></i>
     </div>
-    <div class="bg-white border border-slate-200 rounded-2xl rounded-tl-md p-3.5 text-xs shadow-sm w-full">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl rounded-tl-md p-3.5 text-xs shadow-sm w-full">
       <div class="flex items-center gap-2">
         <span class="text-[10px] font-black tracking-widest" style="color: var(--brand-orange);">VIERNES</span>
         <span class="typing-dots"><span></span><span></span><span></span></span>
@@ -946,7 +940,7 @@ async function enviarMensaje(e) {
     historial.push({ role: "model", text: r.texto });
     const match = buscarProducto(texto + " " + r.texto);
     if (match.length > 0) cuerpo += match.slice(0, 2).map(cardProductoChat).join('');
-    cuerpo += `<div class="mt-2 pt-2 border-t border-slate-100 flex items-center gap-2">
+    cuerpo += `<div class="mt-2 pt-2 border-t border-slate-700 flex items-center gap-2">
       <span class="source-badge source-groq"><i class="fa-solid fa-wand-magic-sparkles"></i> IA Groq</span>
       <span class="text-[9px] text-slate-400">${r.modelo} · ${r.via}</span>
     </div>`;
@@ -954,13 +948,13 @@ async function enviarMensaje(e) {
     sd.className = "w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block";
   } catch (err) {
     if (err.message.includes("API Key no configurada")) {
-      cuerpo = `<div class="text-slate-700 leading-relaxed">
+      cuerpo = `<div class="text-slate-200 leading-relaxed">
         <b>VIERNES está en modo solo-local.</b><br><br>
         Para activar la IA, configura tu API key de Groq en la línea <code>GROQ_API_KEY</code> del archivo. Consigue una en <b>console.groq.com/keys</b>.<br><br>
         Mientras tanto, puedes preguntar sobre diluciones, tiempos, patógenos, almacenamiento, compatibilidad y más.
       </div>`;
     } else {
-      cuerpo = `<div class="text-slate-700 leading-relaxed">
+      cuerpo = `<div class="text-slate-200 leading-relaxed">
         <b>No encontré esa información en mi base local ni pude consultar a la IA.</b><br><br>
         <b>Prueba preguntar sobre:</b><br>
         • <b>Dilución:</b> "¿cómo diluyo AF79?"<br>
@@ -978,7 +972,7 @@ async function enviarMensaje(e) {
     sd.className = "w-1.5 h-1.5 rounded-full bg-amber-400 inline-block";
   }
 
-  bm.querySelector(".bg-white").innerHTML = `<div class="text-xs text-slate-800 leading-relaxed">${cuerpo}</div>`;
+  bm.querySelector(".bg-white").innerHTML = `<div class="text-xs text-slate-200 leading-relaxed">${cuerpo}</div>`;
   cm.scrollTop = cm.scrollHeight;
 }
 
