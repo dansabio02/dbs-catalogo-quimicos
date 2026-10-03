@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0F4C8C">
+<title>DBS · Catálogo de Químicos & VIERNES</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  * { -webkit-tap-highlight-color: transparent; }
+  :root {
+    --brand-blue: #0F4C8C;
+    --brand-blue-dark: #0A3A6B;
+    --brand-blue-light: #1B6BB5;
+    --brand-orange: #E8761C;
+    --brand-orange-dark: #C75F0F;
+    --brand-orange-light: #FFA05C;
+    --paper: #F7F9FC;
+  }
+  body { font-family: 'Inter', sans-serif; overscroll-behavior-y: contain; background: var(--paper); }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  html { scroll-behavior: smooth; }
+  .card-hover { transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
+  .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -12px rgba(15,76,140,0.18); }
+  .card-hover:hover .prod-img { transform: scale(1.06); }
+  .prod-img { transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+  .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--brand-blue); }
+  .dot-grid { background-image: radial-gradient(circle, rgba(255,255,255,0.15) 1px, transparent 1px); background-size: 22px 22px; }
+  .typing-dots span { display: inline-block; width: 5px; height: 5px; margin: 0 1.5px; background: var(--brand-blue); border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
+  .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+  .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+  @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+  @media screen and (max-width: 767px) { input, select, textarea { font-size: 16px !important; } }
+  @supports (padding: env(safe-area-inset-bottom)) { .safe-bottom { padding-bottom: env(safe-area-inset-bottom); } }
+  @media (max-width: 640px) {
+    .card-hover:hover { transform: none; }
+    #chatWindow.abierto {
+      position: fixed !important; inset: 0 !important;
+      width: 100vw !important; height: 100dvh !important;
+      max-height: 100dvh !important; border-radius: 0 !important;
+      margin: 0 !important; z-index: 100 !important;
+    }
+  }
+  @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-6px); } }
+  .animate-float { animation: float 3.2s ease-in-out infinite; }
+  .diag-step { display: flex; align-items: flex-start; gap: 8px; padding: 8px 0; border-bottom: 1px dashed #334155; font-size: 11px; }
+  .diag-icon { width: 18px; text-align: center; flex-shrink: 0; margin-top: 2px; }
+  .diag-ok { color: #10B981; }
+  .diag-fail { color: #EF4444; }
+  .diag-running { color: #F59E0B; }
+  .diag-pending { color: #94A3B8; }
+  .cat-btn.active {
+    background: var(--brand-blue);
+    color: white;
+    border-color: var(--brand-blue);
+    box-shadow: 0 8px 16px -4px rgba(15,76,140,0.35);
+  }
+  @keyframes beam { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.85; } }
+  .beam { animation: beam 4s ease-in-out infinite; }
+  @keyframes scanline { 0% { transform: translateX(-100%); } 100% { transform: translateX(200%); } }
+  .scanline::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 50%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: scanline 3s ease-in-out infinite;
+  }
+  .source-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.03em; }
+  .source-local { background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; }
+  .source-groq { background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; }
+</style>
+</head>
+<body class="text-slate-800 min-h-screen flex flex-col relative">
+
+<header class="bg-white/90 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-40">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+    <a href="#" class="flex items-center gap-3 group">
+      <div class="relative w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center shadow-md" style="background: linear-gradient(135deg, #0F4C8C 0%, #0A3A6B 100%);">
+        <svg viewBox="0 0 32 32" fill="none" class="w-6 h-6">
+          <path d="M16 3L5 9v4l11 6 11-6V9L16 3z" fill="#E8761C"/>
+          <path d="M5 9v4l11 6V13L5 9z" fill="#0F4C8C"/>
+          <path d="M27 9v4l-11 6V13l11-4z" fill="#1B6BB5"/>
+          <path d="M5 15v4l11 6V19L5 15z" fill="#0A3A6B"/>
+          <path d="M27 15v4l-11 6V19l11-4z" fill="#0F4C8C"/>
+        </svg>
+      </div>
+      <div class="hidden sm:block">
+        <div class="text-base font-black text-slate-900 leading-tight tracking-tight">DBS</div>
+        <div class="text-[10px] text-slate-500 leading-tight font-medium">Diversified Building Services</div>
+      </div>
+    </a>
+    <div class="flex items-center gap-2">
+      <button onclick="toggleChat()" class="group flex items-center gap-2 px-3.5 py-2 rounded-xl text-white text-xs font-bold transition-all active:scale-95 shadow-md hover:shadow-lg" style="background: linear-gradient(135deg, #0F4C8C 0%, #1B6BB5 100%);">
+        <span class="relative flex h-2 w-2">
+          <span id="headerDot" class="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+        </span>
+        <i class="fa-solid fa-brain"></i>
+        VIERNES
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+  <section class="relative overflow-hidden rounded-2xl mb-6 text-white" style="background: linear-gradient(135deg, #0A3A6B 0%, #0F4C8C 55%, #1B6BB5 100%);">
+    <div class="absolute inset-0 dot-grid opacity-25"></div>
+    <div class="absolute -top-24 -right-24 w-72 h-72 rounded-full blur-3xl beam" style="background: radial-gradient(circle, rgba(232,118,28,0.3) 0%, transparent 70%);"></div>
+    <div class="absolute -bottom-24 -left-24 w-72 h-72 rounded-full blur-3xl" style="background: radial-gradient(circle, rgba(27,107,181,0.35) 0%, transparent 70%);"></div>
+    <div class="relative px-5 sm:px-10 py-8 sm:py-10 text-center">
+      <h1 class="text-2xl sm:text-4xl font-black tracking-tight">Catálogo de Químicos</h1>
+      <p class="text-blue-100/80 text-xs sm:text-sm mt-2 max-w-lg mx-auto">
+        Consulta a VIERNES para saber qué producto usar, cómo diluirlo y qué precauciones tomar.
+      </p>
+    </div>
+  </section>
+
+  <section id="catalogo" class="space-y-5">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+      <div>
+        <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Productos disponibles</h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Haz clic en cualquier producto para consultar a VIERNES</p>
+      </div>
+      <div id="contadorResultados" class="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-full self-start sm:self-auto"></div>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <button onclick="filtrar('todas')" data-cat="todas" class="cat-btn active inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-200 bg-white text-slate-600 hover:border-slate-400 transition-all active:scale-95"><i class="fa-solid fa-layer-group text-[10px]"></i> Todos</button>
+      <button onclick="filtrar('baños')" data-cat="baños" class="cat-btn inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-200 bg-white text-slate-600 hover:border-slate-400 transition-all active:scale-95"><i class="fa-solid fa-toilet text-[10px]"></i> Baños</button>
+      <button onclick="filtrar('pisos')" data-cat="pisos" class="cat-btn inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-200 bg-white text-slate-600 hover:border-slate-400 transition-all active:scale-95"><i class="fa-solid fa-broom text-[10px]"></i> Pisos</button>
+      <button onclick="filtrar('vidrios')" data-cat="vidrios" class="cat-btn inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-200 bg-white text-slate-600 hover:border-slate-400 transition-all active:scale-95"><i class="fa-solid fa-spray-can text-[10px]"></i> Vidrios</button>
+      <button onclick="filtrar('especializado')" data-cat="especializado" class="cat-btn inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-200 bg-white text-slate-600 hover:border-slate-400 transition-all active:scale-95"><i class="fa-solid fa-flask text-[10px]"></i> Especializados</button>
+    </div>
+    <div id="quimicosGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+  </section>
+</main>
+
+<footer class="py-8 mt-12" style="background: #0A3A6B;">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background: linear-gradient(135deg, #0F4C8C, #1B6BB5);">
+          <svg viewBox="0 0 32 32" fill="none" class="w-5 h-5">
+            <path d="M16 3L5 9v4l11 6 11-6V9L16 3z" fill="#E8761C"/>
+            <path d="M5 9v4l11 6V13L5 9z" fill="#0A3A6B"/>
+            <path d="M27 9v4l-11 6V13l11-4z" fill="#1B6BB5"/>
+            <path d="M5 15v4l11 6V19L5 15z" fill="#0A3A6B"/>
+            <path d="M27 15v4l-11 6V19l11-4z" fill="#0F4C8C"/>
+          </svg>
+        </div>
+        <div class="text-xs">
+          <div class="text-white font-black tracking-tight">DBS</div>
+          <div class="text-blue-300/70 text-[10px]">Diversified Building Services</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-4 text-[11px] text-blue-200/70">
+        <span class="flex items-center gap-1.5"><i class="fa-solid fa-code" style="color: var(--brand-orange);"></i> Daniel Naula</span>
+        <span class="text-blue-400/40">·</span>
+        <span>&copy; <span id="year"></span></span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<aside class="fixed bottom-4 right-4 z-50 flex flex-col items-end safe-bottom">
+  <div id="chatWindow" class="hidden w-[95vw] sm:w-[440px] h-[640px] max-h-[90vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden mb-3 border border-slate-200">
+    <div class="p-4 flex items-center justify-between shrink-0 text-white relative overflow-hidden" style="background: linear-gradient(135deg, #0A3A6B 0%, #0F4C8C 50%, #1B6BB5 100%);">
+      <div class="absolute inset-0 dot-grid opacity-20"></div>
+      <div class="relative flex items-center gap-3">
+        <div class="relative w-11 h-11 rounded-xl flex items-center justify-center border border-white/20 backdrop-blur-sm overflow-hidden scanline" style="background: linear-gradient(135deg, #E8761C, #C75F0F);">
+          <i class="fa-solid fa-brain text-white text-lg relative z-10"></i>
+        </div>
+        <div>
+          <div class="font-black text-sm leading-tight tracking-wider">VIERNES</div>
+          <div id="statusText" class="text-[10px] text-blue-100/80 mt-0.5 flex items-center gap-1.5">
+            <span id="statusDot" class="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block"></span>
+            Verificando conexión…
+          </div>
+        </div>
+      </div>
+      <div class="relative flex items-center gap-1">
+        <button onclick="abrirDiagnostico()" title="Diagnóstico" class="p-2 hover:bg-white/10 rounded-lg text-blue-100 transition-colors"><i class="fa-solid fa-stethoscope text-sm"></i></button>
+        <button onclick="limpiarHistorial()" title="Nueva conversación" class="p-2 hover:bg-white/10 rounded-lg text-blue-100 transition-colors"><i class="fa-solid fa-rotate-right text-sm"></i></button>
+        <button onclick="toggleChat()" class="p-2 hover:bg-white/10 rounded-lg text-blue-100 transition-colors"><i class="fa-solid fa-xmark text-base"></i></button>
+      </div>
+    </div>
+
+    <div id="diagPanel" class="hidden text-white p-4 text-xs max-h-[400px] overflow-y-auto custom-scrollbar" style="background: #0B2545;">
+      <div class="flex items-center justify-between mb-3">
+        <div class="font-bold uppercase tracking-wider flex items-center gap-2 text-[11px] text-orange-300">
+          <i class="fa-solid fa-stethoscope"></i> Diagnóstico del sistema
+        </div>
+        <button onclick="cerrarDiagnostico()" class="text-slate-400 hover:text-white p-1"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <button onclick="ejecutarDiagnostico()" class="w-full text-white font-bold py-2.5 rounded-xl mb-3 transition-colors active:scale-95 text-xs shadow-md" style="background: linear-gradient(135deg, #E8761C, #C75F0F);">
+        <i class="fa-solid fa-play mr-1"></i> Ejecutar diagnóstico completo
+      </button>
+      <div id="diagResultados"></div>
+    </div>
+
+    <div id="chatMessages" class="flex-grow p-4 overflow-y-auto custom-scrollbar space-y-3" style="background: linear-gradient(180deg, #F7F9FC 0%, #EFF6FF 100%);">
+      <div class="flex items-start gap-3">
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 shadow-md" style="background: linear-gradient(135deg, #E8761C, #C75F0F);">
+          <i class="fa-solid fa-brain text-white text-sm"></i>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-2xl rounded-tl-md p-4 text-xs space-y-3 shadow-sm w-full">
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] font-black tracking-widest" style="color: var(--brand-orange);">VIERNES</span>
+            <span class="text-[10px] text-slate-400">·</span>
+            <span class="text-[10px] text-slate-400">Base técnica local + IA</span>
+          </div>
+          <p class="font-bold text-slate-900 text-sm">¡Hola! 👋</p>
+          <p class="text-slate-600 leading-relaxed">Tengo información técnica completa de cada químico: dosis, tiempos, patógenos, primeros auxilios, compatibilidades y más. Pregúntame lo que necesites.</p>
+          <div class="flex flex-wrap gap-1.5 pt-1">
+            <button onclick="enviarMensajeRapido('¿Cómo diluyo AF79?')" class="text-[10px] bg-slate-50 hover:text-white font-semibold px-2.5 py-1.5 rounded-lg border border-slate-200 transition-all" onmouseover="this.style.background='#0F4C8C'" onmouseout="this.style.background=''">💧 Dilución AF79</button>
+            <button onclick="enviarMensajeRapido('¿Qué mata AF79?')" class="text-[10px] bg-slate-50 hover:text-white font-semibold px-2.5 py-1.5 rounded-lg border border-slate-200 transition-all" onmouseover="this.style.background='#0F4C8C'" onmouseout="this.style.background=''">🦠 Qué mata AF79</button>
+            <button onclick="enviarMensajeRapido('¿Cómo aplico CLR en bebederos?')" class="text-[10px] bg-slate-50 hover:text-white font-semibold px-2.5 py-1.5 rounded-lg border border-slate-200 transition-all" onmouseover="this.style.background='#0F4C8C'" onmouseout="this.style.background=''">🚰 CLR bebederos</button>
+            <button onclick="enviarMensajeRapido('¿En qué no debo usar CLR?')" class="text-[10px] bg-slate-50 hover:text-white font-semibold px-2.5 py-1.5 rounded-lg border border-slate-200 transition-all" onmouseover="this.style.background='#0F4C8C'" onmouseout="this.style.background=''">🚫 CLR prohibido</button>
+            <button onclick="enviarMensajeRapido('Primeros auxilios CLR en ojos')" class="text-[10px] bg-slate-50 hover:text-white font-semibold px-2.5 py-1.5 rounded-lg border border-slate-200 transition-all" onmouseover="this.style.background='#0F4C8C'" onmouseout="this.style.background=''">🚨 Primeros auxilios</button>
+            <button onclick="enviarMensajeRapido('¿Cómo quito moho en duchas?')" class="text-[10px] bg-slate-50 hover:text-white font-semibold px-2.5 py-1.5 rounded-lg border border-slate-200 transition-all" onmouseover="this.style.background='#0F4C8C'" onmouseout="this.style.background=''">🚿 Moho duchas</button>
+            <button onclick="enviarMensajeRapido('Compara AF79 y pH7Q')" class="text-[10px] bg-slate-50 hover:text-white font-semibold px-2.5 py-1.5 rounded-lg border border-slate-200 transition-all" onmouseover="this.style.background='#0F4C8C'" onmouseout="this.style.background=''">⚖️ AF79 vs pH7Q</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-3 bg-white border-t border-slate-200 shrink-0 safe-bottom">
+      <form onsubmit="enviarMensaje(event)" class="flex items-center gap-2">
+        <input type="text" id="chatInput" placeholder="Pregúntale a VIERNES…" class="flex-grow px-4 py-3 bg-slate-100 border border-transparent rounded-xl text-xs focus:outline-none focus:ring-2 focus:bg-white transition-all min-w-0">
+        <button type="submit" class="p-3 text-white rounded-xl transition-all shrink-0 active:scale-95 shadow-md" style="background: linear-gradient(135deg, #0F4C8C, #1B6BB5);">
+          <i class="fa-solid fa-arrow-up text-sm"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <button onclick="toggleChat()" class="group relative p-4 rounded-2xl shadow-2xl hover:shadow-2xl transition-all active:scale-95 text-white animate-float" style="background: linear-gradient(135deg, #0F4C8C 0%, #1B6BB5 60%, #E8761C 160%);">
+    <div class="flex items-center gap-2">
+      <i class="fa-solid fa-brain text-orange-300 text-lg group-hover:scale-110 transition-transform"></i>
+      <span class="text-xs font-black tracking-wider pr-1 hidden sm:inline">VIERNES</span>
+    </div>
+    <span id="notifDot" class="absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-white animate-pulse" style="background: var(--brand-orange);"></span>
+  </button>
+</aside>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// API KEY DE GROQ
+// ═══════════════════════════════════════════════════════════════
+const GROQ_API_KEY = "PEGA_AQUI_TU_GROQ_API_KEY";
+const MODELOS_GROQ = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "gemma2-9b-it"];
+const CORS_PROXIES = [
+  { nombre: "corsproxy.io", build: (url) => "https://corsproxy.io/?url=" + encodeURIComponent(url) },
+  { nombre: "allorigins",   build: (url) => "https://api.allorigins.win/raw?url=" + encodeURIComponent(url) },
+  { nombre: "cors.eu.org",  build: (url) => "https://cors.eu.org/" + url }
+];
+
+const notaFastDraw = "Utilizar directamente la mezcla que proporciona la máquina FastDraw® PRO Action Gap para llenar buckets de trapeado, la máquina automática de lavado y botes de pulverización (spray).";
+
+// ═══════════════════════════════════════════════════════════════
+// BASE DE CONOCIMIENTO TÉCNICO AMPLIADA
+// ═══════════════════════════════════════════════════════════════
+const productos = [
+  {
+    id: "af79", nombre: "AF79 Concentrate", fabricante: "Betco", presentacion: "Galón 2L · Concentrado",
+    imagen: "images/af79.jpg",
+    clasificacion: "Desinfectante concentrado no ácido", categoria: "baños",
+    ph: "12.5 – 13.5 (alcalino fuerte)",
+    dilucion: "Medical: 2 oz/gal (1:64) · No medical: 1 oz/gal (1:128)",
+    tiempo: "10 min (desinfección general) · 1 min (bacterias vegetativas)",
+    uso: "Limpieza y desinfección de baños: pisos, duchas, inodoros y urinarios.",
+    alternativos: "Ideal contra VRE, MRSA, staph, salmonella, pseudomonas y HIV-1.",
+    superficies: "Cerámica, porcelana, azulejo, vinilo, acero inoxidable, superficies duras no porosas.",
+    precaucion: "Usar guantes. No mezclar con ácidos o cloro. No usar en instrumentos médicos.",
+    fastDraw: true, fastDrawNum: "#4",
+    metodoAplicacion: "Aplicar solución con mopa, trapeador o spray. Para inodoros, añadir 1-2 oz directamente al agua del bowl y cepillar. Enjuagar con agua potable las superficies en contacto con alimentos.",
+    datosTecnicos: "EPA Reg. No. 6836-73-4170 · pH 12.5-13.5 · Color verde · Fragancia Ocean Breeze",
+    patogenos: "VRE, MRSA, VISA, VRSA, Staphylococcus aureus, Salmonella enterica, Pseudomonas aeruginosa, HIV-1, HBV, HCV, Rotavirus, Rhinovirus Tipo 37, Adenovirus Tipo 5",
+    activos: "Cloruro de didecil dimetil amonio, Cloruro de benzalconio, Etanol",
+    almacenamiento: "Mantener en envase original cerrado. Temperatura 5-40°C. Vida útil 2 años sin diluir.",
+    primerosAuxilios: "Ojos: enjuagar 15-20 min con agua. Piel: lavar con agua y jabón. Ingestión: NO provocar vómito, beber agua, llamar médico.",
+    incompatibilidades: "Ácidos (CLR PRO), cloro, peróxido de hidrógeno concentrado",
+    proTips: "Pre-mezclar con FastDraw. Rota el producto FIFO. No dejar secar en superficies: siempre enjuagar o retirar.",
+    keywords: ["inodoro","inodoros","urinario","baño","baños","wc","taza","sanitario","ducha","duchas","af79","desinfectante","bacteria","germen","vre","mrsa","staph","hiv","hepatitis","rotavirus","pseudomonas"]
+  },
+  {
+    id: "ph7q", nombre: "pH7Q Dual", fabricante: "Betco", presentacion: "Galón 2L · Concentrado",
+    imagen: "images/ph7q.jpg",
+    clasificacion: "Desinfectante pH neutro multiuso", categoria: "pisos",
+    ph: "6 – 8 (neutro)",
+    dilucion: "0.5 oz/gal (1:256) limpieza · 2 oz/gal (1:64) bactericida · 2.25 oz/gal (1:57) parvocida",
+    tiempo: "10 min contacto húmedo (bactericida) · 45 min (parvocida)",
+    uso: "Limpieza y desinfección de pisos en hospitales, escuelas y oficinas.",
+    alternativos: "No opaca ni deja película en pisos encerados. Eficaz contra parvo canino.",
+    superficies: "Pisos, azulejos, vinilo, madera sellada, superficies duras no porosas.",
+    precaucion: "No requiere enjuague. Diluir con FastDraw. No usar en instrumentos médicos.",
+    fastDraw: true, fastDrawNum: "#4",
+    metodoAplicacion: "Aplicar con mopa o auto-scrubber. NO recoger la solución inmediatamente; dejar actuar 10 min. Después, recoger exceso con mopa o aspiradora. No enjuagar pisos a menos que se vayan a encerar.",
+    datosTecnicos: "EPA Reg. No. 10324-141-4170 · pH 6-8 · Color ámbar claro · Fragancia limón",
+    patogenos: "HIV-1, HBV, HCV, MRSA, VRE, VISA, VRSA, Norovirus, Rotavirus, Adenovirus Tipo 5, Poliovirus Tipo 1, Salmonella, E. coli, Listeria monocytogenes, Parvovirus canino, Trichophyton mentagrophytes (pie de atleta)",
+    activos: "Cloruro de dimetil bencil amonio, Cloruro de dimetil etilbencil amonio",
+    almacenamiento: "Temperatura 5-40°C. Proteger de congelamiento. Vida útil 2 años.",
+    primerosAuxilios: "Ojos: enjuagar 15 min. Piel: lavar con agua. Inhalación: mover al aire libre. Ingestión: beber agua, llamar médico.",
+    incompatibilidades: "Ácidos fuertes, cloro, agentes oxidantes fuertes",
+    proTips: "Dual significa que limpia y desinfecta en un solo paso. Ideal para hospitales donde se necesita rotación rápida de habitaciones. NO confundir con AF79 (este es para baños, pH7Q para pisos generales).",
+    keywords: ["piso","pisos","fregado","mopa","trapeador","azulejo","madera","neutro","ph7q","multiuso","hospital","escuela","parvo","norovirus","pie de atleta"]
+  },
+  {
+    id: "clear-image", nombre: "Clear Image", fabricante: "Betco FastDraw #5", presentacion: "Galón 2L · Concentrado",
+    imagen: "images/clear-image.jpg",
+    clasificacion: "Limpiador de vidrios sin amoníaco", categoria: "vidrios",
+    ph: "10.5 – 11.3 (alcalino)",
+    dilucion: "2 oz/gal (1:64) con agua fría",
+    tiempo: "Aplicar y retirar inmediatamente",
+    uso: "Limpieza de espejos, ventanas, mamparas y plexiglás.",
+    alternativos: "No deja rayas, niebla ni residuo. Formulado sin amoníaco (seguro en películas polarizadas).",
+    superficies: "Vidrio, espejos, cristal, plexiglás, policarbonato, mamparas, ventanas tintadas.",
+    precaucion: "No aplicar en superficies calientes (mayores a 40°C). Usar paño de microfibra.",
+    fastDraw: true, fastDrawNum: "#5",
+    metodoAplicacion: "Diluir 2 oz por galón de agua fría. Pulverizar sobre la superficie y limpiar con paño libre de pelusa o escobilla (squeegee). Para acabado profesional, pulir con un segundo paño seco. No usar sobre vidrio caliente.",
+    datosTecnicos: "FastDraw #5 · pH 10.5-11.3 · Color azul · Sin fragancia · Biodegradable · 34 galones RTU por galón concentrado",
+    patogenos: "N/A (producto de limpieza, no desinfectante)",
+    activos: "Tensioactivos no iónicos, alcohol isopropílico (bajo %)",
+    almacenamiento: "Temperatura 5-40°C. No congelar. Vida útil 2 años.",
+    primerosAuxilios: "Ojos: enjuagar 15 min. Piel: lavar con agua. Ingestión: beber agua si está consciente, llamar médico.",
+    incompatibilidades: "Ácidos fuertes",
+    proTips: "Usa agua fría, no caliente. Aplica en paño, no directamente en superficie, para evitar goteos. Ideal para mamparas de ducha después de usar Green Earth.",
+    keywords: ["espejo","espejos","ventana","ventanas","vidrio","vidrios","cristal","mampara","transparente","plexiglas","policarbonato","tintado","clear image","limpiavidrios"]
+  },
+  {
+    id: "clr", nombre: "CLR PRO", fabricante: "CLR / Jelmar", presentacion: "Spray 32 oz · Listo para usar",
+    imagen: "images/clr.jpg",
+    clasificacion: "Removedor de calcio, cal y óxido", categoria: "especializado",
+    ph: "1.5 – 2.0 (ácido fuerte)",
+    dilucion: "Listo para usar · Diluir 1:1 con agua tibia para manchas leves",
+    tiempo: "2 min máximo · No dejar secar",
+    uso: "Remover manchas de agua dura, sarro, calcio y óxido.",
+    alternativos: "Limpieza de bebederos, secamanos, grifería, filtros de café y hervidores.",
+    superficies: "Acero inoxidable, cromo, cerámica, vidrio, plásticos duros, fibra de vidrio.",
+    precaucion: "NO usar en mármol, granito, aluminio, metal galvanizado ni piedra natural. Ventilar. Usar guantes y gafas.",
+    fastDraw: false,
+    metodoAplicacion: "Aplicar directamente con esponja, paño o cepillo. Dejar actuar máximo 2 minutos. Enjuagar abundantemente con agua fría. Para filtros: diluir 1:1 con agua tibia, sumergir 2 min, cepillar y enjuagar. Para bebederos: aplicar con paño, no dejar secar.",
+    datosTecnicos: "EPA Safer Choice · pH 1.5-2.0 · Biodegradable · 32 fl oz rinde ~64 aplicaciones",
+    patogenos: "N/A (producto de limpieza, no desinfectante)",
+    activos: "Ácido láctico, Ácido glucónico, Óxido de lauril dimetilamina",
+    almacenamiento: "Temperatura ambiente. Mantener envase cerrado. Vida útil 3 años.",
+    primerosAuxilios: "Ojos: enjuagar 15 min con agua. Piel: enjuagar 15 min. Ingestión: NO provocar vómito, beber agua, médico urgente. Inhalación: aire fresco.",
+    incompatibilidades: "Alcalinos (AF79, pH7Q, Degreaser), cloro, amoníaco",
+    proTips: "Trabaja en superficies húmedas, no secas. Nunca dejes secar: mancha permanente. Para sarro duro, remojar paño y aplicar 2 min. Siempre enjuaga abundantemente.",
+    keywords: ["bebedero","bebederos","secamano","secamanos","agua dura","oxido","sarro","calcio","clr","cal","incrustacion","griferia","filtro","cafetera","hervidor"]
+  },
+  {
+    id: "degreaser", nombre: "Degreaser #65", fabricante: "Coastwide Professional", presentacion: "Galón 3.78L · Concentrado",
+    imagen: "images/degreaser.jpg",
+    clasificacion: "Desengrasante heavy duty EcoLogo", categoria: "especializado",
+    ph: "10.0 – 12.0 (concentrado) · 7.0 – 8.0 (diluido)",
+    dilucion: "1 oz/gal (1:128) uso general · 2 oz/gal (1:64) grasa media · 4 oz/gal (1:32) grasa pesada · 8 oz/gal (1:16) grasa extrema",
+    tiempo: "2 – 5 min de contacto (hasta 10 min en grasa pesada)",
+    uso: "Remoción de grasa difícil en duchas, pisos y superficies lavables.",
+    alternativos: "Preliminar de pisos con alta acumulación de grasa. Seguro en metales y vidrio.",
+    superficies: "Azulejo, cerámica, metal, vidrio, concreto, superficies no dañadas por agua.",
+    precaucion: "Enjuagar después. Usar guantes y gafas. No mezclar con ácidos. No usar en aluminio.",
+    fastDraw: false,
+    metodoAplicacion: "Diluir 1 oz por galón de agua. Aplicar sobre la superficie con mopa, esponja o spray. Dejar actuar 2-5 min. Frotar si es necesario. Enjuagar completamente con agua limpia.",
+    datosTecnicos: "pH concentrado 10-12 · pH diluido 7-8 · Sin fosfatos · Biodegradable · Green Seal GS-37 · EcoLogo certificado",
+    patogenos: "N/A (producto de limpieza, no desinfectante)",
+    activos: "Tensioactivos aniónicos y no iónicos, hidróxido de sodio (bajo %), etanolamina",
+    almacenamiento: "Temperatura 10-30°C. Mantener cerrado. Vida útil 2 años.",
+    primerosAuxilios: "Ojos: enjuagar 15 min. Piel: enjuagar con agua. Ingestión: beber agua, NO inducir vómito, médico.",
+    incompatibilidades: "Ácidos (CLR), cloro, amoníaco",
+    proTips: "Trabaja con agua caliente (100-140°F) para mejor desempeño. Aplica de abajo hacia arriba para evitar escurrimientos. Para grasa extrema, usa 1:16 y deja 10 min.",
+    keywords: ["grasa","aceite","desengrasante","ducha","manteca","pringue","suciedad pesada","cocina","grasa pesada","grasa extrema","coastwide","degreaser"]
+  },
+  {
+    id: "odor", nombre: "Odor Eliminator #123", fabricante: "Coastwide Professional", presentacion: "Galón 3.78L · Concentrado",
+    imagen: "images/odor.jpg",
+    clasificacion: "Eliminador de olores enzimático", categoria: "especializado",
+    ph: "6.5 – 8.5 (neutro)",
+    dilucion: "1:64 uso general en superficies · Aplicación directa en desagües: 2 oz por drenaje · 1:10 para manchas severas",
+    tiempo: "10 – 30 min (acción enzimática inicial) · Efecto continúa 3-7 días",
+    uso: "Eliminación de olores en desagües, tuberías y trampas de grasa.",
+    alternativos: "Tratamiento de olores por vómito, basura, sangre, orina, heces. Seguro en alfombras y tapicería.",
+    superficies: "Tuberías, desagües, sifones, trampas de grasa, contenedores de basura, alfombras, textiles.",
+    precaucion: "No mezclar con desinfectantes fuertes (mata las enzimas). No mezclar con cloro.",
+    fastDraw: false,
+    metodoAplicacion: "Para desagües: verter 2 oz directamente en cada drenaje 2 veces por semana. Para superficies: diluir 1:64 y aplicar. Dejar secar al aire para que las enzimas actúen. Para manchas en alfombra: aplicar directamente y dejar 10-30 min, luego aspirar.",
+    datosTecnicos: "Bacterias no patógenas (bacillus) · Enzimas activas (proteasa, lipasa, amilasa) · pH 6.5-8.5 · Biodegradable · Sin butil",
+    patogenos: "No es desinfectante. Elimina olores por degradación enzimática, no mata patógenos.",
+    activos: "Cultivos bacterianos no patógenos, enzimas (proteasas, lipasas, amilasas), tensioactivos",
+    almacenamiento: "Temperatura 10-30°C. NO congelar (mata bacterias). Vida útil 18 meses.",
+    primerosAuxilios: "Ojos: enjuagar 15 min. Piel: lavar. Ingestión: beber agua, médico. No es tóxico.",
+    incompatibilidades: "Cloro, desinfectantes fuertes (quats), yodo, peróxido de hidrógeno concentrado",
+    proTips: "Aplicar al final del día cuando no haya tráfico. Las enzimas necesitan tiempo sin interrupciones. NO combinar con desinfectantes.",
+    keywords: ["desague","olor","olores","mal olor","enzimatico","tuberia","drenaje","sifon","cloaca","trampa de grasa","orina","vomito","basura","heces","odor"]
+  },
+  {
+    id: "gum", nombre: "Gum Remover", fabricante: "Diversey", presentacion: "Aerosol 6.5 oz",
+    imagen: "images/gum-remover.jpg",
+    clasificacion: "Aerosol congelante especializado", categoria: "especializado",
+    ph: "N/A (aerosol)",
+    dilucion: "Listo para usar · Sin dilución",
+    tiempo: "30 – 60 seg (congelamiento efectivo)",
+    uso: "Remoción de chicles, goma de mascar, cera de vela y alquitrán.",
+    alternativos: "Apto para alfombras, moquetas, tapicería y superficies duras.",
+    superficies: "Alfombras, moquetas, textiles, superficies duras, mesas, sillas, paredes.",
+    precaucion: "No usar sobre piel. Aplicar en área ventilada. No perforar el aerosol. No exponer a temperaturas >50°C.",
+    fastDraw: false,
+    metodoAplicacion: "1. Insertar el tubo en la válvula del aerosol. 2. Rociar directamente sobre el chicle por 2-3 segundos. 3. Inmediatamente raspar con espátula plástica (nunca metálica). 4. Aspirar los restos congelados. 5. Repetir si es necesario.",
+    datosTecnicos: "Temperatura de congelamiento: -22°F (-30°C) · Sin CFC · Certificado WoolSafe · Aerosol inflamable · 6.5 oz rinde para ~50 chicles",
+    patogenos: "N/A (no desinfectante)",
+    activos: "Isopentano, Propano, Isobutano (propelentes)",
+    almacenamiento: "Temperatura <30°C. Lejos de fuentes de calor. No perforar ni incinerar.",
+    primerosAuxilios: "Piel: enjuagar con agua tibia (riesgo de congelamiento). Ojos: enjuagar 15 min con agua tibia. Inhalación: aire fresco.",
+    incompatibilidades: "N/A",
+    proTips: "Trabaja rápido: el chicle se endurece por 30-60 seg, luego se vuelve pegajoso de nuevo. Usa espátula plástica, nunca metálica (raya).",
+    keywords: ["chicle","chicles","goma","mascar","cera","vela","alquitran","adhesivo","alfombra","moqueta","pegamento","tapiceria","crayon","gum"]
+  },
+  {
+    id: "green-earth", nombre: "Green Earth® Peroxide", fabricante: "Betco FastDraw #11", presentacion: "Galón 2L · Concentrado",
+    imagen: "images/green-earth.jpg",
+    clasificacion: "Limpiador ecológico con peróxido", categoria: "baños",
+    ph: "7.0 (neutro)",
+    dilucion: "1:10 (12 oz/gal) suelos pesados · 1:20 (6 oz/gal) suelos medios · 1:32 (4 oz/gal) duchas · 1:64 (2 oz/gal) suelos leves",
+    tiempo: "3 – 5 min (duchas: 5 min)",
+    uso: "Limpieza de duchas, azulejos, lechada y superficies de baño.",
+    alternativos: "Remueve moho, sarro y manchas de agua dura. Blanquea lechada sin cloro.",
+    superficies: "Cerámica, lechada, plástico, madera sellada, vidrio, alfombras, azulejos.",
+    precaucion: "No mezclar con cloro ni amoníaco. No eficaz contra óxido. No usar sin diluir.",
+    fastDraw: true, fastDrawNum: "#11",
+    metodoAplicacion: "DUCHAS: diluir 1:32, pulverizar en azulejos, lechada y accesorios. Dejar 5 min, enjuagar. Frotar si es necesario. ALFOMBRAS: aplicar pequeña cantidad, agitar, dejar 3-5 min, absorber y enjuagar.",
+    datosTecnicos: "FastDraw #11 · pH 7.0 · Peróxido de hidrógeno 3-5% · Biodegradable · Sin nonilfenol · Sin cloro · Sin VOCs",
+    patogenos: "N/A (limpiador, no desinfectante registrado). Remueve moho por oxidación.",
+    activos: "Peróxido de hidrógeno, tensioactivos biodegradables, alcohol etoxilado",
+    almacenamiento: "Temperatura 5-30°C. Lejos de luz directa (el peróxido se degrada). Vida útil 18 meses.",
+    primerosAuxilios: "Ojos: enjuagar 15 min. Piel: lavar. Ingestión: beber agua, médico si persisten síntomas.",
+    incompatibilidades: "Cloro (genera gas cloro), amoníaco, ácidos concentrados",
+    proTips: "El peróxido se descompone con la luz solar: guarda en lugar oscuro. Aplicar en superficies frías para mayor eficacia. Excelente contra moho negro en juntas. No usar en mármol.",
+    keywords: ["ducha","duchas","plastico","madera","ceramica","peroxido","green earth","moho","hongos","jabon","lechada","azulejo","moho negro"]
+  }
+];
+
+function svgPlaceholder(nombre) {
+  const esc = nombre.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+  const s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+    <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0F4C8C"/><stop offset="100%" stop-color="#1B6BB5"/></linearGradient></defs>
+    <rect width="400" height="400" fill="#F7F9FC"/>
+    <rect x="30" y="30" width="340" height="340" rx="20" fill="url(#g)"/>
+    <circle cx="200" cy="140" r="45" fill="#E8761C" opacity="0.15"/>
+    <text x="200" y="160" font-family="Inter,sans-serif" font-size="60" font-weight="900" fill="#E8761C" text-anchor="middle">DBS</text>
+    <text x="200" y="240" font-family="Inter,sans-serif" font-size="16" font-weight="800" fill="#FFFFFF" text-anchor="middle">QUÍMICO OFICIAL</text>
+    <text x="200" y="275" font-family="Inter,sans-serif" font-size="14" font-weight="600" fill="#FFA05C" text-anchor="middle">${esc}</text>
+  </svg>`;
+  return 'data:image/svg+xml;utf8,' + encodeURIComponent(s);
+}
+
+let filtroActivo = 'todas';
+
+function renderizarGaleria() {
+  const grid = document.getElementById("quimicosGrid");
+  const contador = document.getElementById("contadorResultados");
+  grid.innerHTML = "";
+  const filtrados = filtroActivo === 'todas' ? productos : productos.filter(p => p.categoria === filtroActivo);
+  contador.textContent = `${filtrados.length} producto${filtrados.length !== 1 ? 's' : ''}`;
+
+  if (filtrados.length === 0) {
+    grid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400"><i class="fa-solid fa-inbox text-3xl mb-2"></i><p class="text-sm">Sin productos en esta categoría</p></div>`;
+    return;
+  }
+
+  filtrados.forEach(prod => {
+    const card = document.createElement("article");
+    card.className = "card-hover group bg-white rounded-2xl border border-slate-200 overflow-hidden flex flex-col";
+    const catStyles = {
+      'baños': { bg: '#E0F2FE', color: '#0369A1' },
+      'pisos': { bg: '#D1FAE5', color: '#047857' },
+      'vidrios': { bg: '#DBEAFE', color: '#1D4ED8' },
+      'especializado': { bg: '#FEF3E2', color: '#B45309' }
+    };
+    const cat = catStyles[prod.categoria] || { bg: '#F1F5F9', color: '#475569' };
+
+    card.innerHTML = `
+      <div class="relative h-52 bg-slate-50 flex items-center justify-center overflow-hidden border-b border-slate-100">
+        <span class="absolute top-3 left-3 z-10 text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full" style="background: ${cat.bg}; color: ${cat.color};">${prod.categoria}</span>
+        <img src="${prod.imagen}" alt="${prod.nombre}" class="prod-img max-h-[85%] max-w-[85%] object-contain drop-shadow-md" onerror="this.onerror=null; this.src='${svgPlaceholder(prod.nombre)}'">
+      </div>
+      <div class="p-4 flex-grow flex flex-col gap-3">
+        <div>
+          <div class="text-[10px] font-bold uppercase tracking-wider mb-0.5" style="color: var(--brand-orange);">${prod.fabricante}</div>
+          <h3 class="text-base font-black text-slate-900 leading-tight">${prod.nombre}</h3>
+          <div class="text-[11px] text-slate-500 mt-1">${prod.clasificacion}</div>
+        </div>
+        <div class="rounded-xl p-3 border" style="background: #EFF6FF; border-color: #DBEAFE;">
+          <div class="text-[10px] font-bold uppercase tracking-wider mb-1" style="color: var(--brand-blue);">Uso principal</div>
+          <div class="text-xs font-semibold text-slate-800 leading-relaxed">${prod.uso}</div>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <div class="text-center"><div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">pH</div><div class="text-[10px] font-bold text-slate-700 mt-0.5 mono">${prod.ph.split(' ')[0]}</div></div>
+          <div class="text-center border-x border-slate-100"><div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Dilución</div><div class="text-[10px] font-bold text-slate-700 mt-0.5 mono">${prod.dilucion.split(':')[0]}</div></div>
+          <div class="text-center"><div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Tiempo</div><div class="text-[10px] font-bold text-slate-700 mt-0.5 mono">${prod.tiempo.split(' ')[0]}</div></div>
+        </div>
+        ${prod.fastDraw ? `<div class="flex items-center gap-2 text-[10px] font-semibold rounded-lg px-2.5 py-1.5 border" style="background: #FEF7EC; border-color: #F9D8A8; color: var(--brand-orange-dark);"><i class="fa-solid fa-gears"></i> Requiere FastDraw ${prod.fastDrawNum || ''}</div>` : ''}
+      </div>
+      <div class="p-4 pt-0">
+        <button onclick="preguntar('${prod.nombre.replace(/'/g, "\\'")}')" class="w-full py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 active:scale-95 border" style="background: #F7F9FC; border-color: #E2E8F0; color: #334155;" onmouseover="this.style.background='#0F4C8C';this.style.color='white';this.style.borderColor='#0F4C8C'" onmouseout="this.style.background='#F7F9FC';this.style.color='#334155';this.style.borderColor='#E2E8F0'">
+          <i class="fa-solid fa-brain" style="color: var(--brand-orange);"></i> Consultar a VIERNES
+        </button>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function filtrar(cat) {
+  filtroActivo = cat;
+  document.querySelectorAll('.cat-btn').forEach(b => { if (b.dataset.cat === cat) b.classList.add('active'); else b.classList.remove('active'); });
+  renderizarGaleria();
+}
+
+let historial = [];
+
+function toggleChat() {
+  const w = document.getElementById("chatWindow");
+  w.classList.toggle("hidden");
+  if (window.innerWidth <= 640) w.classList.toggle("abierto");
+  const dot = document.getElementById("notifDot");
+  if (dot) dot.classList.add('hidden');
+}
+function preguntar(nombre) { const w = document.getElementById("chatWindow"); if (w.classList.contains("hidden")) toggleChat(); enviarMensajeRapido(`¿Para qué se usa exactamente ${nombre}?`); }
+function enviarMensajeRapido(texto) { document.getElementById("chatInput").value = texto; enviarMensaje(new Event('submit')); }
+function limpiarHistorial() { historial = []; const cm = document.getElementById("chatMessages"); cm.innerHTML = `<div class="text-center text-[11px] text-slate-400 py-3"><i class="fa-solid fa-rotate-right mr-1"></i> Nueva conversación</div>`; }
+
+function normalizar(s) { return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9\s]/g, ""); }
+
+// Búsqueda robusta con score: nombre > clasificación > keywords (con stem simple)
+function buscarProductoScored(texto) {
+  const n = " " + normalizar(texto) + " ";
+  if (!n.trim()) return [];
+  const scored = productos.map(p => {
+    let score = 0;
+    p.keywords.forEach(k => {
+      const nk = normalizar(k);
+      if (!nk) return;
+      const stem = nk.replace(/es$|s$/, "");
+      if (n.includes(" " + nk + " ")) score += nk.length * 2;
+      else if (n.includes(nk)) score += nk.length;
+      else if (stem.length > 3 && n.includes(stem)) score += stem.length;
+    });
+    const nombre = normalizar(p.nombre);
+    if (n.includes(nombre)) score += 100;
+    nombre.split(/\s+/).forEach(t => { if (t.length > 2 && n.includes(t)) score += 10; });
+    const clas = normalizar(p.clasificacion);
+    if (clas && n.includes(clas)) score += 30;
+    return { p, score };
+  }).filter(x => x.score > 0).sort((a, b) => b.score - a.score);
+  return scored;
+}
+
+function buscarProducto(texto) {
+  return buscarProductoScored(texto).map(x => x.p);
+}
+
+function cardProductoChat(p) {
+  return `<div class="rounded-xl p-2.5 flex items-center gap-3 mt-2 border" style="background: #F7F9FC; border-color: #E2E8F0;">
+    <div class="w-12 h-12 rounded-lg bg-white border border-slate-200 flex items-center justify-center overflow-hidden shrink-0">
+      <img src="${p.imagen}" class="w-full h-full object-contain p-1" onerror="this.onerror=null; this.src='${svgPlaceholder(p.nombre)}'">
+    </div>
+    <div class="flex-grow min-w-0"><div class="font-bold text-slate-900 text-[11px] truncate">${p.nombre}</div><div class="text-[10px] text-slate-500 truncate">${p.uso}</div></div>
+  </div>`;
+}
+
+function intentarRespuestaLocal(texto) {
+  const n = normalizar(texto);
+  if (!n) return { exito: false };
+
+  const esDilucion = /(diluy|dilucion|dosis|cuanto.*agua|proporcion|cuanto.*producto|preparar|mezclar.*agua)/i.test(n);
+  const esTiempo = /(tiempo|cuanto.*tarda|dejar actuar|contacto|esperar|cuanto.*minuto|cuanto.*dejo)/i.test(n);
+  const esAplicacion = /(aplico|aplicacion|metodo|como uso|procedimiento|paso a paso|instrucciones|tecnica)/i.test(n);
+  const esSeguridad = /(peligro|seguridad|precaucion|cuidado|proteccion|guantes|ventilacion|mascara|epp|equipo.*proteccion)/i.test(n);
+  const esMezcla = /(mezcl|combin|junt|con.*puedo.*mezclar)/i.test(n);
+  const esEmergencia = /(salpic|ojos|quem|emergencia|accident|derrame|ingest|trag|respir)/i.test(n);
+  const esPrimerosAux = /(primeros auxilios|que hago si|que hacer en caso)/i.test(n);
+  const esProtocolo = /(protocol|secuencia|como limpio|rutina)/i.test(n);
+  const esOptimizacion = /(optim|rapido|eficien|acelerar)/i.test(n);
+  const esFastDraw = /(fastdraw|fast draw|dosificador|fastdrawn)/i.test(n);
+  const esCatalogo = /(todos|lista|catalogo|productos disponibles|que productos)/i.test(n);
+  const esPatogenos = /(mata|elimina|patogeno|virus|bacteria|germen|que.*desinfecta|kill)/i.test(n);
+  const esAlmacenamiento = /(almacen|guardar|storage|conserva|caduc|vida util|vencimiento)/i.test(n);
+  const esIncompatible = /(incompatible|no.*mezclar|no.*usar.*con|prohibido|nunca.*con)/i.test(n);
+  const esSuperficies = /(superficie|material|puedo.*usar.*en|apto|se puede aplicar|compatible)/i.test(n);
+  const esComparativa = /(compar|diferencia|mejor que|vs|cual es mejor|o.*cual)/i.test(n);
+  const esProTips = /(truco|consejo|tip|mejor manera|recomienda|como.*mejor)/i.test(n);
+  const esSaludo = /^(hola|buenos dias|buenas tardes|buenas noches|hey|ey|alo|que tal|buen dia|buenas)/.test(n);
+  const esGracias = /(gracias|thanks|muchas gracias|ok gracias)/.test(n);
+
+  const scored = buscarProductoScored(texto);
+  const match = scored.map(x => x.p);
+  const confianza = scored.length > 0 ? scored[0].score : 0;
+  const confAlta = confianza >= 4;
+
+  if (esSaludo && !confAlta) {
+    return { exito: true, respuesta: `<b>¡Hola! 👋 Soy VIERNES.</b><br><br>Puedo ayudarte con:<br>• Diluciones y dosificación<br>• Tiempos de contacto<br>• Métodos de aplicación<br>• Patógenos que eliminan<br>• Primeros auxilios y seguridad<br>• Compatibilidad entre productos<br>• FastDraw y catálogo<br><br>¿Qué necesitas?` };
+  }
+
+  if (esGracias) {
+    return { exito: true, respuesta: `<b>¡De nada! 😊</b> Si tienes otra duda sobre los químicos, aquí estoy.` };
+  }
+
+  if (esComparativa && match.length < 2) {
+    return { exito: false }; // dejar que Groq compare con contexto completo
+  }
+
+  if (esComparativa && match.length >= 2 && confAlta) {
+    const p1 = match[0], p2 = match[1];
+    return { exito: true, respuesta: `<b>⚖️ Comparativa: ${p1.nombre} vs ${p2.nombre}</b><br><br>
+    <table class="w-full text-[10px] border-collapse">
+      <tr class="border-b border-slate-200"><td class="py-1.5 font-bold">Aspecto</td><td class="py-1.5 font-bold">${p1.nombre}</td><td class="py-1.5 font-bold">${p2.nombre}</td></tr>
+      <tr class="border-b border-slate-100"><td class="py-1.5 text-slate-500">pH</td><td class="py-1.5">${p1.ph}</td><td class="py-1.5">${p2.ph}</td></tr>
+      <tr class="border-b border-slate-100"><td class="py-1.5 text-slate-500">Dilución</td><td class="py-1.5">${p1.dilucion}</td><td class="py-1.5">${p2.dilucion}</td></tr>
+      <tr class="border-b border-slate-100"><td class="py-1.5 text-slate-500">Tiempo</td><td class="py-1.5">${p1.tiempo}</td><td class="py-1.5">${p2.tiempo}</td></tr>
+      <tr class="border-b border-slate-100"><td class="py-1.5 text-slate-500">Uso</td><td class="py-1.5">${p1.uso}</td><td class="py-1.5">${p2.uso}</td></tr>
+      <tr><td class="py-1.5 text-slate-500">FastDraw</td><td class="py-1.5">${p1.fastDraw ? "SÍ "+(p1.fastDrawNum||"") : "No"}</td><td class="py-1.5">${p2.fastDraw ? "SÍ "+(p2.fastDrawNum||"") : "No"}</td></tr>
+    </table><br>
+    <b>Recomendación:</b> Usa ${p1.nombre} para ${p1.uso.toLowerCase()} y ${p2.nombre} para ${p2.uso.toLowerCase()}.` };
+  }
+
+  if (esPatogenos && confAlta) {
+    const p = match[0];
+    let r = `<b>🦠 Patógenos eliminados por ${p.nombre}</b><br><br>${p.patogenos}`;
+    if (p.activos) r += `<br><br><b>Ingredientes activos:</b> ${p.activos}`;
+    r += `<br><br><b>Tiempo de contacto:</b> ${p.tiempo}`;
+    r += cardProductoChat(p);
+    return { exito: true, respuesta: r };
+  }
+
+  if ((esPrimerosAux || esEmergencia) && confAlta) {
+    const p = match[0];
+    return { exito: true, respuesta: `<div class="rounded-xl p-3 mb-2 border" style="background: #FEF2F2; border-color: #FECACA;"><b class="text-red-700 text-sm"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Primeros auxilios: ${p.nombre}</b></div>${p.primerosAuxilios}` };
+  }
+
+  if (esPrimerosAux || esEmergencia) {
+    return { exito: true, respuesta: `<div class="rounded-xl p-3 mb-2 border" style="background: #FEF2F2; border-color: #FECACA;"><b class="text-red-700 text-sm"><i class="fa-solid fa-triangle-exclamation mr-1"></i>EMERGENCIA QUÍMICA</b></div>
+    <b>1. Ojos:</b> Enjuagar 15 min con agua tibia. NO neutralizar. Médico urgente.<br>
+    <b>2. Piel:</b> Quitar ropa. Enjuagar 15 min con agua abundante. Si hay quemadura, médico.<br>
+    <b>3. Inhalación:</b> Salir al aire libre. Si hay dificultad respiratoria, llamar emergencias.<br>
+    <b>4. Ingestión:</b> NO provocar vómito. Llamar toxicología. Llevar etiqueta.<br><br>
+    <b>Específico:</b><br>
+    • CLR PRO (pH 1.5-2.0 ácido): Muy irritante.<br>
+    • Coastwide Degreaser (pH 10-12 alcalino): Peligroso ojos.<br>
+    • Green Earth Peroxide: Enjuagar y consultar.` };
+  }
+
+  if (esAlmacenamiento && confAlta) {
+    const p = match[0];
+    return { exito: true, respuesta: `<b>📦 Almacenamiento: ${p.nombre}</b><br><br>${p.almacenamiento}${cardProductoChat(p)}` };
+  }
+
+  if (esIncompatible && confAlta) {
+    const p = match[0];
+    return { exito: true, respuesta: `<b>🚫 ${p.nombre} — NO mezclar con:</b><br><br>${p.incompatibilidades}<br><br><b>Precaución general:</b> ${p.precaucion}` };
+  }
+
+  if (esSuperficies && confAlta) {
+    const p = match[0];
+    let r = `<b>🧱 Superficies: ${p.nombre}</b><br><br><b>Apto para:</b> ${p.superficies}<br><br>`;
+    if (p.incompatibilidades && p.incompatibilidades !== "N/A") r += `<b>NO usar con:</b> ${p.incompatibilidades}<br><br>`;
+    if (p.precaucion) r += `<b>Precaución:</b> ${p.precaucion}`;
+    return { exito: true, respuesta: r };
+  }
+
+  if ((esProTips || esOptimizacion) && confAlta && !esOptimizacion) {
+    const p = match[0];
+    return { exito: true, respuesta: `<b>💡 Consejos profesionales: ${p.nombre}</b><br><br>${p.proTips}` };
+  }
+
+  if (confAlta && esDilucion) {
+    const p = match[0];
+    let r = `<b>💧 Dilución: ${p.nombre}</b><br><br><b>${p.dilucion}</b><br><br>`;
+    if (p.fastDraw) r += `<div class="rounded-lg p-2.5 mb-2 border" style="background:#FEF7EC;border-color:#F9D8A8;"><b>⚙️ Requiere FastDraw ${p.fastDrawNum || ''}:</b> ${notaFastDraw}</div>`;
+    r += `<b>Método:</b> ${p.metodoAplicacion}`;
+    if (p.proTips) r += `<br><br><b>💡 Tip:</b> ${p.proTips}`;
+    r += cardProductoChat(p);
+    return { exito: true, respuesta: r };
+  }
+
+  if (confAlta && esTiempo) {
+    const p = match[0];
+    let r = `<b>⏱️ Tiempo de contacto: ${p.nombre}</b><br><br><b>${p.tiempo}</b><br><br>`;
+    r += `<b>Importante:</b> superficies deben permanecer húmedas durante todo el contacto. No dejar secar.<br><br>`;
+    r += `<b>Método:</b> ${p.metodoAplicacion}`;
+    r += cardProductoChat(p);
+    return { exito: true, respuesta: r };
+  }
+
+  if (confAlta && esAplicacion) {
+    const p = match[0];
+    let r = `<b>📋 Aplicación: ${p.nombre}</b><br><br>${p.metodoAplicacion}<br><br>`;
+    r += `<b>Dilución:</b> ${p.dilucion}<br><b>Tiempo:</b> ${p.tiempo}`;
+    if (p.fastDraw) r += `<br><br><b>⚙️ FastDraw ${p.fastDrawNum || ''}:</b> ${notaFastDraw}`;
+    if (p.proTips) r += `<br><br><b>💡 Tip:</b> ${p.proTips}`;
+    r += cardProductoChat(p);
+    return { exito: true, respuesta: r };
+  }
+
+  if (confAlta && esSeguridad) {
+    const p = match[0];
+    let r = `<b>⚠️ Seguridad: ${p.nombre}</b><br><br>${p.precaucion}<br><br>`;
+    r += `<b>Datos técnicos:</b> ${p.datosTecnicos}<br><br>`;
+    r += `<b>Primeros auxilios:</b> ${p.primerosAuxilios}`;
+    return { exito: true, respuesta: r };
+  }
+
+  if (esMezcla) {
+    const acido = /(clr|acido|sarro|oxido)/i.test(n);
+    const alcalino = /(af79|ph7q|degreaser|desengras|desinfect)/i.test(n);
+    const peroxido = /(green earth|peroxido)/i.test(n);
+    const cloro = /(cloro|hipoclorito|blanqueador|lejia)/i.test(n);
+    if (acido && alcalino) {
+      return { exito: true, respuesta: `<div class="rounded-xl p-3 mb-2 border" style="background: #FEF2F2; border-color: #FECACA;"><b class="text-red-700 text-sm"><i class="fa-solid fa-triangle-exclamation mr-1"></i>¡NO MEZCLAR!</b></div>
+      <b>Nunca mezcles CLR PRO (ácido, pH 1.5-2.0) con AF79, pH7Q o Degreaser (alcalinos, pH 9-13).</b><br><br>
+      La reacción genera gases tóxicos, calor y puede causar quemaduras químicas.<br><br>
+      <b>Protocolo correcto si necesitas ambos:</b><br>
+      1. Aplica el alcalino primero, enjuaga con agua<br>
+      2. Espera 5 minutos<br>
+      3. Aplica CLR PRO por separado<br>
+      4. Enjuaga nuevamente` };
+    }
+    if (peroxido && cloro) {
+      return { exito: true, respuesta: `<div class="rounded-xl p-3 mb-2 border" style="background: #FEF2F2; border-color: #FECACA;"><b class="text-red-700 text-sm"><i class="fa-solid fa-triangle-exclamation mr-1"></i>¡NO MEZCLAR!</b></div>
+      <b>Green Earth Peroxide + Cloro = gas cloro tóxico.</b><br><br>
+      El peróxido de hidrógeno reacciona violentamente con cloro generando gas cloro que es letal en espacios cerrados.` };
+    }
+    return { exito: true, respuesta: `Mezclas seguras dentro del catálogo:<br><br>
+    ✅ <b>AF79 + pH7Q</b> (ambos alcalinos, complementarios)<br>
+    ✅ <b>Green Earth + Clear Image</b> (usar en secuencia, no mezclar)<br>
+    ✅ <b>Degreaser → pH7Q/AF79</b> (secuencia con enjuague)<br><br>
+    ❌ <b>CLR PRO + cualquier desinfectante</b> (ácido + alcalino)<br>
+    ❌ <b>Green Earth + cloro</b> (gas tóxico)<br>
+    ❌ <b>Odor Eliminator + desinfectante fuerte</b> (mata las enzimas)<br><br>
+    <b>Regla de oro:</b> nunca mezcles ácidos con alcalinos. Si necesitas ambos, úsalos en secuencia con enjuague intermedio y espera 5 min.` };
+  }
+
+  if (esProtocolo && /(grasa|orina|sucio|pesad)/i.test(n)) {
+    return { exito: true, respuesta: `<b>Protocolo para piso con grasa vieja y olor a orina:</b><br><br>
+    <b>Paso 1 — Preliminar:</b> Coastwide Degreaser diluido 1:128 (1 oz/gal). Aplicar 2-5 min. Frotar con mopa.<br>
+    <b>Paso 2 — Enjuagar:</b> agua limpia, retirar todo residuo alcalino.<br>
+    <b>Paso 3 — Desinfectar:</b> Betco pH7Q a 0.5 oz/gal (1:256) o AF79 a 1:128. Aplicar 10 min de contacto húmedo.<br>
+    <b>Paso 4 — Olores residuales:</b> si persiste el olor a orina, aplicar Coastwide Odor Eliminator en juntas y desagües. Verter 2 oz por drenaje, dejar 30 min.<br><br>
+    <b>Nota:</b> el olor a orina en juntas requiere enzimas específicas (Odor Eliminator). Los desinfectantes solos no lo eliminan.` };
+  }
+
+  if (esProtocolo && /(moho|hongo|mildew)/i.test(n)) {
+    return { exito: true, respuesta: `<b>Protocolo para moho en duchas/azulejos:</b><br><br>
+    <b>1. Pre-enjuagar</b> con agua tibia para remover residuo superficial.<br>
+    <b>2. Aplicar Green Earth Peroxide</b> diluido 1:32 (4 oz/gal) sobre la zona afectada.<br>
+    <b>3. Dejar actuar 5 minutos</b> sin que se seque.<br>
+    <b>4. Frotar con cepillo de cerdas duras</b> (para juntas/lechada).<br>
+    <b>5. Enjuagar abundantemente.</b><br>
+    <b>6. Repetir</b> si el moho es profundo.<br><br>
+    <b>Prevención:</b> secar las superficies después de cada uso. Ventilar el baño. Aplicar Green Earth semanalmente para prevenir.` };
+  }
+
+  if (esOptimizacion) {
+    return { exito: true, respuesta: `<b>Optimización de tareas de limpieza:</b><br><br>
+    <b>Prepara antes:</b> todos los productos en carrito con sus diluciones listas.<br>
+    <b>Orden por baño (12 min):</b><br>
+    1. Rocía inodoros con AF79 (actúa mientras haces lo siguiente)<br>
+    2. Aplica pH7Q en piso con mopa (deja actuar 10 min)<br>
+    3. Limpia espejos con Clear Image (2 min)<br>
+    4. Vuelve a inodoros, frota y enjuaga (3 min)<br>
+    5. Duchas con Green Earth (3 min)<br>
+    6. Retira pH7Q del piso y termina (2 min)<br><br>
+    <b>Truco:</b> usa FastDraw para tener diluciones exactas sin perder tiempo midiendo.` };
+  }
+
+  if (esFastDraw) {
+    const conFast = productos.filter(p => p.fastDraw);
+    let r = `<b>⚙️ Productos que requieren dosificador FastDraw®</b>:<br><br>`;
+    conFast.forEach(p => { r += `• <b>${p.nombre}</b> ${p.fastDrawNum} — ${p.dilucion}<br>`; });
+    r += `<br><b>Nota:</b> ${notaFastDraw}`;
+    return { exito: true, respuesta: r };
+  }
+
+  if (esCatalogo) {
+    let r = `El catálogo DBS tiene <b>${productos.length} químicos</b>:<br><br>`;
+    productos.forEach(p => { r += `• <b>${p.nombre}</b> — ${p.uso}<br>`; });
+    return { exito: true, respuesta: r };
+  }
+
+  if (confAlta) {
+    const p = match[0];
+    let r = `<b>${p.nombre}</b><br><span class="text-slate-500 text-[11px]">${p.clasificacion}</span><br><br>`;
+    r += `<b>Uso:</b> ${p.uso}<br>`;
+    r += `<b>pH:</b> ${p.ph} · <b>Dilución:</b> ${p.dilucion}<br>`;
+    r += `<b>Tiempo:</b> ${p.tiempo}<br><br>`;
+    r += `<b>📋 Método:</b> ${p.metodoAplicacion}<br><br>`;
+    if (p.patogenos && !p.patogenos.startsWith("N/A")) r += `<b>🦠 Patógenos:</b> ${p.patogenos}<br><br>`;
+    r += `<b>🔬 Datos:</b> ${p.datosTecnicos}`;
+    if (p.fastDraw) r += `<br><br><b>⚙️ FastDraw ${p.fastDrawNum || ''}:</b> ${notaFastDraw}`;
+    if (p.precaucion) r += `<br><br><b>⚠️ Precaución:</b> ${p.precaucion}`;
+    r += cardProductoChat(p);
+    return { exito: true, respuesta: r };
+  }
+
+  return { exito: false };
+}
+
+function systemPrompt() {
+  const cat = productos.map((p, i) =>
+    `[${i+1}] ${p.nombre} · ${p.fabricante} · ${p.clasificacion} · pH ${p.ph} · Dilución ${p.dilucion} · Tiempo ${p.tiempo} · Uso: ${p.uso} · Superficies: ${p.superficies} · Método: ${p.metodoAplicacion} · Patógenos: ${p.patogenos} · Precaución: ${p.precaucion} · FastDraw: ${p.fastDraw ? "SÍ" : "NO"}`
+  ).join("\n\n");
+
+  return `Eres VIERNES, asistente técnico experto de DBS (Diversified Building Services), creado por el Sr. Daniel Naula.
+
+El operario hizo una pregunta que NO estaba cubierta por tu base de conocimiento local. Debes responder basándote en tu conocimiento general y el catálogo oficial.
+
+CATÁLOGO OFICIAL DBS:
+${cat}
+
+REGLAS:
+1. SOLO recomiendas productos de este catálogo. Nunca menciones marcas externas.
+2. Español neutro, profesional, máximo 200 palabras.
+3. Escribe nombres EXACTOS de los productos.
+4. Si la pregunta no es sobre químicos de limpieza, redirige amablemente al tema del catálogo.`;
+}
+
+async function fetchCORS(url, opts, onP) {
+  const errs = [];
+  try { if (onP) onP("Conectando…"); return { res: await fetch(url, opts), via: "directo" }; } catch (e) { errs.push("directo: " + e.message); }
+  for (const pr of CORS_PROXIES) {
+    try {
+      if (onP) onP(`Vía ${pr.nombre}…`);
+      const res = await fetch(pr.build(url), { method: opts.method || 'GET', headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) }, body: opts.body });
+      if ([200,400,401,429].includes(res.status)) return { res, via: pr.nombre };
+      errs.push(`${pr.nombre}: ${res.status}`);
+    } catch (e) { errs.push(`${pr.nombre}: ${e.message}`); }
+  }
+  throw new Error(errs.join('\n'));
+}
+
+async function consultarGroq(texto, onP) {
+  if (!GROQ_API_KEY || GROQ_API_KEY.includes("PEGA_AQUI") || GROQ_API_KEY.trim() === "") throw new Error("API Key no configurada");
+  const msgs = [{ role: "system", content: systemPrompt() }];
+  historial.slice(-6).forEach(h => msgs.push({ role: h.role === "model" ? "assistant" : "user", content: h.text }));
+  msgs.push({ role: "user", content: texto });
+  const url = "https://api.groq.com/openai/v1/chat/completions";
+  const errs = [];
+  for (const modelo of MODELOS_GROQ) {
+    try {
+      if (onP) onP(`IA · ${modelo.split('-').slice(0,3).join('-')}…`);
+      const { res, via } = await fetchCORS(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_API_KEY}` }, body: JSON.stringify({ model: modelo, messages: msgs, temperature: 0.7, max_tokens: 800 }) }, onP);
+      const raw = await res.text();
+      if (!res.ok) { errs.push(`${modelo}: HTTP ${res.status}`); continue; }
+      let data;
+      try { data = JSON.parse(raw); } catch (e) { errs.push(`${modelo}: JSON inválido`); continue; }
+      const content = data.choices?.[0]?.message?.content;
+      if (content) return { texto: content.trim(), modelo, via };
+      errs.push(`${modelo}: sin contenido`);
+    } catch (e) { errs.push(`${modelo}: ${e.message.split('\n')[0]}`); }
+  }
+  throw new Error(errs.join('\n'));
+}
+
+async function enviarMensaje(e) {
+  if (e) e.preventDefault();
+  const input = document.getElementById("chatInput");
+  const texto = input.value.trim();
+  if (!texto) return;
+
+  const cm = document.getElementById("chatMessages");
+
+  const um = document.createElement("div");
+  um.className = "flex justify-end";
+  um.innerHTML = `<div class="text-white rounded-2xl rounded-tr-md p-3 text-xs max-w-[80%] font-medium shadow-md" style="background: linear-gradient(135deg, #0F4C8C, #1B6BB5);">${texto}</div>`;
+  cm.appendChild(um);
+  input.value = "";
+  cm.scrollTop = cm.scrollHeight;
+
+  const local = intentarRespuestaLocal(texto);
+
+  if (local.exito) {
+    const bm = document.createElement("div");
+    bm.className = "flex items-start gap-3";
+    bm.innerHTML = `<div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 shadow-md" style="background: linear-gradient(135deg, #E8761C, #C75F0F);">
+        <i class="fa-solid fa-brain text-white text-sm"></i>
+      </div>
+      <div class="bg-white border border-slate-200 rounded-2xl rounded-tl-md p-3.5 text-xs shadow-sm w-full">
+        <div class="text-slate-800 leading-relaxed">${local.respuesta}</div>
+        <div class="mt-2 pt-2 border-t border-slate-100 flex items-center gap-2">
+          <span class="source-badge source-local"><i class="fa-solid fa-database"></i> Base local</span>
+          <span class="text-[9px] text-slate-400">Respuesta instantánea</span>
+        </div>
+      </div>`;
+    cm.appendChild(bm);
+    cm.scrollTop = cm.scrollHeight;
+    historial.push({ role: "user", text: texto });
+    historial.push({ role: "model", text: local.respuesta.replace(/<[^>]+>/g, '') });
+    return;
+  }
+
+  const bm = document.createElement("div");
+  bm.className = "flex items-start gap-3";
+  bm.innerHTML = `<div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 shadow-md" style="background: linear-gradient(135deg, #E8761C, #C75F0F);">
+      <i class="fa-solid fa-brain text-white text-sm"></i>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-2xl rounded-tl-md p-3.5 text-xs shadow-sm w-full">
+      <div class="flex items-center gap-2">
+        <span class="text-[10px] font-black tracking-widest" style="color: var(--brand-orange);">VIERNES</span>
+        <span class="typing-dots"><span></span><span></span><span></span></span>
+      </div>
+      <p class="text-[10px] text-slate-400 mt-1">Sin resultados en base local. Consultando IA…</p>
+      <p class="text-[10px] text-slate-400 mt-0.5" id="progresoTexto"></p>
+    </div>`;
+  cm.appendChild(bm);
+  cm.scrollTop = cm.scrollHeight;
+
+  const st = document.getElementById("statusText");
+  const sd = document.getElementById("statusDot");
+  st.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block animate-pulse"></span> Consultando IA…`;
+  sd.className = "w-1.5 h-1.5 rounded-full bg-amber-400 inline-block animate-pulse";
+
+  const prog = (m) => { const el = document.getElementById("progresoTexto"); if (el) el.textContent = m; };
+
+  let cuerpo = "";
+  try {
+    const r = await consultarGroq(texto, prog);
+    cuerpo = r.texto.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
+    historial.push({ role: "user", text: texto });
+    historial.push({ role: "model", text: r.texto });
+    const match = buscarProducto(texto + " " + r.texto);
+    if (match.length > 0) cuerpo += match.slice(0, 2).map(cardProductoChat).join('');
+    cuerpo += `<div class="mt-2 pt-2 border-t border-slate-100 flex items-center gap-2">
+      <span class="source-badge source-groq"><i class="fa-solid fa-wand-magic-sparkles"></i> IA Groq</span>
+      <span class="text-[9px] text-slate-400">${r.modelo} · ${r.via}</span>
+    </div>`;
+    st.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span> VIERNES activo`;
+    sd.className = "w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block";
+  } catch (err) {
+    if (err.message.includes("API Key no configurada")) {
+      cuerpo = `<div class="text-slate-700 leading-relaxed">
+        <b>VIERNES está en modo solo-local.</b><br><br>
+        Para activar la IA, configura tu API key de Groq en la línea <code>GROQ_API_KEY</code> del archivo. Consigue una en <b>console.groq.com/keys</b>.<br><br>
+        Mientras tanto, puedes preguntar sobre diluciones, tiempos, patógenos, almacenamiento, compatibilidad y más.
+      </div>`;
+    } else {
+      cuerpo = `<div class="text-slate-700 leading-relaxed">
+        <b>No encontré esa información en mi base local ni pude consultar a la IA.</b><br><br>
+        <b>Prueba preguntar sobre:</b><br>
+        • <b>Dilución:</b> "¿cómo diluyo AF79?"<br>
+        • <b>Tiempo:</b> "¿cuánto tiempo dejo pH7Q?"<br>
+        • <b>Aplicación:</b> "¿cómo aplico CLR?"<br>
+        • <b>Seguridad:</b> "¿precauciones de Degreaser?"<br>
+        • <b>Patógenos:</b> "¿qué mata AF79?"<br>
+        • <b>Almacenamiento:</b> "¿cómo guardo CLR?"<br>
+        • <b>Comparativas:</b> "compara AF79 y pH7Q"<br>
+        • <b>Primeros auxilios:</b> "salpicadura en ojos"<br>
+        • <b>Superficies:</b> "¿en qué no uso CLR?"
+      </div>`;
+    }
+    st.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block"></span> Solo base local`;
+    sd.className = "w-1.5 h-1.5 rounded-full bg-amber-400 inline-block";
+  }
+
+  bm.querySelector(".bg-white").innerHTML = `<div class="text-xs text-slate-800 leading-relaxed">${cuerpo}</div>`;
+  cm.scrollTop = cm.scrollHeight;
+}
+
+function abrirDiagnostico() { document.getElementById("diagPanel").classList.remove("hidden"); }
+function cerrarDiagnostico() { document.getElementById("diagPanel").classList.add("hidden"); }
+
+async function ejecutarDiagnostico() {
+  const cont = document.getElementById("diagResultados");
+  cont.innerHTML = "";
+  const t0 = Date.now();
+
+  const log = (et, es, msg) => {
+    const ic = { ok: '<i class="fa-solid fa-circle-check diag-ok"></i>', fail: '<i class="fa-solid fa-circle-xmark diag-fail"></i>', run: '<i class="fa-solid fa-spinner fa-spin diag-running"></i>', pend: '<i class="fa-regular fa-circle diag-pending"></i>' };
+    const row = document.createElement("div");
+    row.className = "diag-step";
+    row.innerHTML = `<span class="diag-icon">${ic[es]}</span><span class="flex-grow"><b>${et}</b><br><span class="text-slate-400">${msg}</span></span>`;
+    cont.appendChild(row);
+    cont.scrollTop = cont.scrollHeight;
+  };
+
+  log("Base local", "ok", `${productos.length} productos · ${productos.reduce((a,p) => a + p.keywords.length, 0)} palabras clave`);
+
+  const pruebas = [
+    "¿Cómo diluyo AF79?",
+    "¿Qué mata pH7Q?",
+    "Primeros auxilios CLR en ojos",
+    "¿Cómo almaceno Green Earth?",
+    "¿Cómo aplico CLR en bebederos?",
+    "Compara AF79 y pH7Q",
+    "¿En qué superficies no uso CLR?",
+    "Puedo mezclar AF79 con CLR",
+    "¿Cómo quito moho en duchas?",
+    "Tips para usar Degreaser"
+  ];
+
+  let ok = 0;
+  pruebas.forEach(p => {
+    const r = intentarRespuestaLocal(p);
+    if (r.exito) ok++;
+    log(`Local: "${p}"`, r.exito ? "ok" : "pend", r.exito ? "✓ Encontrado" : "→ iría a Groq");
+  });
+  log("Base local", "ok", `${ok}/${pruebas.length} pruebas cubiertas localmente`);
+
+  if (!GROQ_API_KEY || GROQ_API_KEY.includes("PEGA_AQUI")) {
+    log("API Key Groq", "fail", "❌ No configurada · Obtén en console.groq.com/keys");
+  } else {
+    log("API Key Groq", "ok", `✓ ${GROQ_API_KEY.substring(0, 10)}…`);
+    for (const m of MODELOS_GROQ) {
+      try {
+        const t = Date.now();
+        const r = await consultarGroq("Responde solo: OK");
+        log(`Groq: ${m}`, "ok", `✓ ${Date.now() - t}ms · vía ${r.via}`);
+        break;
+      } catch (e) { log(`Groq: ${m}`, "fail", `✗ ${e.message.substring(0, 100)}`); }
+    }
+  }
+
+  log("Total", "ok", `${Date.now() - t0}ms`);
+}
+
+async function testInicial() {
+  const st = document.getElementById("statusText");
+  const sd = document.getElementById("statusDot");
+  if (!GROQ_API_KEY || GROQ_API_KEY.includes("PEGA_AQUI")) {
+    st.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span> Base local activa`;
+    sd.className = "w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block";
+    return;
+  }
+  try {
+    await consultarGroq("OK");
+    st.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span> Local + IA activos`;
+    sd.className = "w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block";
+  } catch (e) {
+    st.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span> Base local activa`;
+    sd.className = "w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block";
+  }
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  document.getElementById('year').textContent = new Date().getFullYear();
+  renderizarGaleria();
+  setTimeout(testInicial, 500);
+});
+</script>
+</body>
+</html>
