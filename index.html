@@ -285,7 +285,7 @@ const productos = [
     primerosAuxilios: "Ojos: enjuagar 15-20 min con agua. Piel: lavar con agua y jabón. Ingestión: NO provocar vómito, beber agua, llamar médico.",
     incompatibilidades: "Ácidos (CLR PRO), cloro, peróxido de hidrógeno concentrado",
     proTips: "Pre-mezclar con FastDraw. Rota el producto FIFO. No dejar secar en superficies: siempre enjuagar o retirar.",
-    keywords: ["inodoro","inodoros","urinario","baño","baños","wc","taza","sanitario","ducha","duchas","af79","desinfectante","bacteria","germen","vre","mrsa","staph","hiv","hepatitis","rotavirus","pseudomonas"]
+    keywords: ["inodoro","inodoros","urinario","baño","baños","wc","taza","sanitario","ducha","duchas","af79","desinfectante","bacteria","germen","vre","mrsa","staph","hiv","hepatitis","rotavirus","pseudomonas","sarscov2","covid","influenza","mop","desinfeccion"]
   },
   {
     id: "ph7q", nombre: "pH7Q Dual", fabricante: "Betco", presentacion: "Galón 2L · Concentrado",
@@ -373,7 +373,7 @@ const productos = [
     primerosAuxilios: "Ojos: enjuagar 15 min. Piel: enjuagar con agua. Ingestión: beber agua, NO inducir vómito, médico.",
     incompatibilidades: "Ácidos (CLR), cloro, amoníaco",
     proTips: "Trabaja con agua caliente (100-140°F) para mejor desempeño. Aplica de abajo hacia arriba para evitar escurrimientos. Para grasa extrema, usa 1:16 y deja 10 min.",
-    keywords: ["grasa","aceite","desengrasante","ducha","manteca","pringue","suciedad pesada","cocina","grasa pesada","grasa extrema","coastwide","degreaser"]
+    keywords: ["grasa","aceite","desengrasante","ducha","manteca","pringue","suciedad pesada","cocina","grasa pesada","grasa extrema","coastwide","degreaser","cera","finish","tinta","crayon","humo","hollín"]
   },
   {
     id: "odor", nombre: "Odor Eliminator #123", fabricante: "Coastwide Professional", presentacion: "Galón 3.78L · Concentrado",
@@ -395,7 +395,7 @@ const productos = [
     primerosAuxilios: "Ojos: enjuagar 15 min. Piel: lavar. Ingestión: beber agua, médico. No es tóxico.",
     incompatibilidades: "Cloro, desinfectantes fuertes (quats), yodo, peróxido de hidrógeno concentrado",
     proTips: "Aplicar al final del día cuando no haya tráfico. Las enzimas necesitan tiempo sin interrupciones. NO combinar con desinfectantes.",
-    keywords: ["desague","olor","olores","mal olor","enzimatico","tuberia","drenaje","sifon","cloaca","trampa de grasa","orina","vomito","basura","heces","odor"]
+    keywords: ["desague","olor","olores","mal olor","enzimatico","tuberia","drenaje","sifon","cloaca","trampa de grasa","orina","vomito","basura","heces","odor","sangre","desecho","urinario","alfombra"]
   },
   {
     id: "gum", nombre: "Gum Remover", fabricante: "Diversey", presentacion: "Aerosol 6.5 oz",
@@ -439,7 +439,7 @@ const productos = [
     primerosAuxilios: "Ojos: enjuagar 15 min. Piel: lavar. Ingestión: beber agua, médico si persisten síntomas.",
     incompatibilidades: "Cloro (genera gas cloro), amoníaco, ácidos concentrados",
     proTips: "El peróxido se descompone con la luz solar: guarda en lugar oscuro. Aplicar en superficies frías para mayor eficacia. Excelente contra moho negro en juntas. No usar en mármol.",
-    keywords: ["ducha","duchas","plastico","madera","ceramica","peroxido","green earth","moho","hongos","jabon","lechada","azulejo","moho negro"]
+    keywords: ["ducha","duchas","plastico","madera","ceramica","peroxido","green earth","moho","hongos","jabon","lechada","azulejo","moho negro","covid","sarscov2","influenza","mildew","garrapatas"]
   }
 ];
 
@@ -593,6 +593,7 @@ function intentarRespuestaLocal(texto) {
   const esSuperficies = /(superficie|material|puedo.*usar.*en|apto|se puede aplicar|compatible)/i.test(n);
   const esComparativa = /(compar|diferencia|mejor que|vs|cual es mejor|o.*cual)/i.test(n);
   const esProTips = /(truco|consejo|tip|mejor manera|recomienda|como.*mejor)/i.test(n);
+  const esEliminar = /(remov|elimina|quit|mancha|manchas|sacar|quitar|limpiar|como.*quit|como.*elimina|como.*remov|como.*limpio|lavar|desmanchar)/i.test(n);
   const esSaludo = /^(hola|buenos dias|buenas tardes|buenas noches|hey|ey|alo|que tal|buen dia|buenas)/.test(n);
   const esGracias = /(gracias|thanks|muchas gracias|ok gracias)/.test(n);
 
@@ -625,6 +626,19 @@ function intentarRespuestaLocal(texto) {
       <tr><td class="py-1.5 text-slate-500">FastDraw</td><td class="py-1.5">${p1.fastDraw ? "SÍ "+(p1.fastDrawNum||"") : "No"}</td><td class="py-1.5">${p2.fastDraw ? "SÍ "+(p2.fastDrawNum||"") : "No"}</td></tr>
     </table><br>
     <b>Recomendación:</b> Usa ${p1.nombre} para ${p1.uso.toLowerCase()} y ${p2.nombre} para ${p2.uso.toLowerCase()}.` };
+  }
+
+  if (esEliminar && confAlta) {
+    const p = match[0];
+    const pasos = p.metodoAplicacion.split(/\.\s+(?=[A-ZÁÉÍÓÚ])/).filter(s => s.trim().length > 3);
+    let r = `<b>¡Claro! 😊</b> Para eliminar este problema te recomiendo <b>${p.nombre}</b>.<br><br><b>Debes hacer lo siguiente:</b><br><br>`;
+    pasos.forEach((paso, i) => { r += `<b>Paso ${i+1}:</b> ${paso.trim()}.<br><br>`; });
+    r += `<b>💧 Dilución:</b> ${p.dilucion}<br><b>⏱️ Tiempo de contacto:</b> ${p.tiempo}<br>`;
+    if (p.fastDraw) r += `<br><b>⚙️ Requiere FastDraw ${p.fastDrawNum || ''}:</b> ${notaFastDraw}<br>`;
+    if (p.proTips) r += `<br><b>💡 Tip:</b> ${p.proTips}<br>`;
+    if (p.precaucion) r += `<br><b>⚠️ Precaución:</b> ${p.precaucion}`;
+    r += cardProductoChat(p);
+    return { exito: true, respuesta: r };
   }
 
   if (esPatogenos && confAlta) {
@@ -792,7 +806,7 @@ function intentarRespuestaLocal(texto) {
 
   if (confAlta) {
     const p = match[0];
-    let r = `<b>${p.nombre}</b><br><span class="text-slate-500 text-[11px]">${p.clasificacion}</span><br><br>`;
+    let r = `<b>¡Perfecto! Aquí va la información de ${p.nombre}:</b><br><br>`;
     r += `<b>Uso:</b> ${p.uso}<br>`;
     r += `<b>pH:</b> ${p.ph} · <b>Dilución:</b> ${p.dilucion}<br>`;
     r += `<b>Tiempo:</b> ${p.tiempo}<br><br>`;
