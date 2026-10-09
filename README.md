@@ -2,16 +2,22 @@
 
 Aplicación web con el catálogo de químicos de Diversified Building Services y el asistente técnico VIERNES.
 
+## Proyecto
+
+🔗 **En vivo:** https://dansabio02.github.io/dbs-catalogo-quimicos/
+
 ## Estructura
 
 - `index.html` — página principal (catálogo + chat VIERNES)
-- `images/` — fotos de productos (agregar aquí)
+- `config.js` — tu API key de Groq (local, no se sube a GitHub)
+- `config.example.js` — plantilla para copiar
+- `images/` — fotos de productos y logo
 
 ## Configuración
 
 1. Obtén una API key en <https://console.groq.com/keys>
-2. En `index.html`, reemplaza `PEGA_AQUI_TU_GROQ_API_KEY` por tu key
-3. Abre `index.html` en el navegador
+2. Copia `config.example.js` como `config.js` y pega tu key
+3. Abre `index.html` en el navegador (o visita la URL en vivo)
 
 ## Flujo del asistente
 
