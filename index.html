@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -74,7 +74,7 @@
   .source-local { background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; }
   .source-groq { background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; }
 </style>
-</head>
+<script src="config.js"></script>`n</head>
 <body class="text-slate-200 min-h-screen flex flex-col relative">
 
 <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-700/60 sticky top-0 z-40">
@@ -245,7 +245,7 @@
 // ═══════════════════════════════════════════════════════════════
 // API KEY DE GROQ
 // ═══════════════════════════════════════════════════════════════
-const GROQ_API_KEY = "PEGA_AQUI_TU_GROQ_API_KEY";
+const GROQ_API_KEY = (window.GROQ_API_KEY_OVERRIDE || "PEGA_AQUI_TU_GROQ_API_KEY");
 const MODELOS_GROQ = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "gemma2-9b-it"];
 const CORS_PROXIES = [
   { nombre: "corsproxy.io", build: (url) => "https://corsproxy.io/?url=" + encodeURIComponent(url) },
@@ -1258,3 +1258,4 @@ window.addEventListener("DOMContentLoaded", () => {
 </script>
 </body>
 </html>
+
