@@ -13,7 +13,15 @@ Aplicación web con el catálogo de químicos de Diversified Building Services y
 - `config.example.js` — plantilla para copiar
 - `images/` — fotos de productos y logo
 
-## Configuración
+## IA de Groq
+
+- **Local:** usa `config.js` (no se sube a GitHub)
+- **Público:** usa `groq-public.js` (key ofuscada en base64)
+- **Modelos activos:** `openai/gpt-oss-120b` y `openai/gpt-oss-20b` (verificados con tu key)
+
+⚠️ **Seguridad:** la key pública está ofuscada pero es recuperable por cualquier visitante.
+Recomendación: crear una API key aparte en Groq solo para el sitio público, con límites de
+uso bajos, y pegarla en `groq-public.js` en lugar de la actual.
 
 1. Obtén una API key en <https://console.groq.com/keys>
 2. Copia `config.example.js` como `config.js` y pega tu key
