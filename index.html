@@ -437,6 +437,119 @@ const productos = [
   }
 ];
 
+// ═══════════════════════════════════════════════════════════════
+// DATOS EXTRA: casos reales, medidas precisas, errores y frecuencias
+// (documentación oficial de fabricantes + casos de uso documentados)
+// ═══════════════════════════════════════════════════════════════
+const datosExtra = {
+  af79: {
+    medidas: "1:64 = 2 oz/gal (desinfección médica) · 1:128 = 1 oz/gal (uso general) · 1-2 oz directo al bowl del inodoro · Mantener superficie húmeda 10 min (1 min para virus respiratorios)",
+    frecuencia: "Diario en baños de alto tráfico · Semanal en baños de bajo tráfico · Tras cualquier derrame biológico",
+    errores: "Dejar secar en la superficie (debe permanecer húmedo todo el contacto) · Mezclar con cloro o ácidos · Usar en instrumentos médicos · No precurar antes de desinfectar · Usar en mármol o piedra natural",
+    casos: [
+      { caso: "Baño público con olor a orina y sarro en grifería", solucion: "1) Preliminar con AF79 1:128 en todo el baño, dejar 10 min. 2) Aplicar CLR PRO en grifería y bebederos con sarro (máx 2 min) y enjuagar con agua fría. 3) Mopar piso con pH7Q 1:256. 4) Si el olor persiste en juntas, aplicar Odor Eliminator 1:10." },
+      { caso: "Vómito o derrame biológico en el baño", solucion: "1) EPP (guantes). 2) Retirar material sólido con toallas. 3) Aplicar AF79 1:64 sobre la zona, dejar 10 min. 4) Enjuagar. 5) Tratar mancha residual con Odor Eliminator 1:10, dejar 30 min." },
+      { caso: "Desinfección tras caso de COVID-19 / influenza", solucion: "1) Preclean superficies. 2) Aplicar AF79 1:64 con paño, mopa o spray hasta mojar. 3) Mantener húmedo 1 min (virus respiratorios) o 10 min (desinfección general). 4) No enjuagar instrumentos; no usar en equipos médicos." }
+    ],
+    protocolos: [
+      "Baño estándar (12 min): 1) AF79 en inodoros/urinarios, dejar actuar. 2) Mopar piso con AF79 1:128. 3) Espejos con Clear Image 1:64. 4) Volver a inodoros, cepillar y enjuagar. 5) Duchas con Green Earth 1:32.",
+      "Control de infecciones: preclean → aplicar hasta mojar → mantener húmedo 10 min → recoger exceso con mopa. Nunca enjuagar antes del tiempo de contacto."
+    ]
+  },
+  ph7q: {
+    medidas: "0.5 oz/gal = 1:256 (limpieza diaria) · 2 oz/gal = 1:64 (bactericida) · 2.25 oz/gal = 1:57 (parvocida canino) · Contacto húmedo 10 min (bacterias) · 45 min (parvo) · 2 min (SARS-CoV-2)",
+    frecuencia: "Diario en pisos de tráfico medio/alto · Tras derrames · En hospitales: cada rotación de habitación",
+    errores: "Recoger la solución antes de 10 min · Enjuagar el piso inmediatamente (solo enjuagar si se va a encerar) · Diluir por encima de 1:64 si se busca desinfección · Congelar el concentrado",
+    casos: [
+      { caso: "Piso de hospital con rotación rápida de habitaciones", solucion: "1) Preclean áreas muy sucias. 2) Aplicar pH7Q 1:256 con mopa o auto-scrubber. 3) Dejar actuar 10 min sin recoger. 4) Recoger exceso con mopa/aspiradora. 5) No enjuagar: el producto no deja película y no opaca el acabado." },
+      { caso: "Brote de parvovirus canino (veterinaria / perrera)", solucion: "1) Limpiar materia orgánica primero. 2) Aplicar pH7Q a 2.25 oz/gal (1:57). 3) Mantener húmedo 45 min. 4) Repetir en juntas y bordes. 5) No usar desinfectantes ácidos en la misma superficie." },
+      { caso: "Norovirus en escuela / oficina", solucion: "1) Preclean con detergente. 2) Aplicar pH7Q 1:64 (2 oz/gal). 3) Dejar 10 min húmedo. 4) No enjuagar. 5) Ventilar el área." }
+    ],
+    protocolos: [
+      "Piso diario (mopa): diluir 0.5 oz/gal → aplicar → dejar 10 min → recoger exceso → dejar secar al aire.",
+      "Desinfección de habitación en 5 min: spray 1:64 en superficies de alto contacto (picaportes, barandas) → dejar 10 min húmedo → no enjuagar."
+    ]
+  },
+  "clear-image": {
+    medidas: "2 oz/gal = 1:64 con agua FRÍA (16 mL/L) · Rinde 34 galones RTU por galón de concentrado · No usar agua caliente",
+    frecuencia: "Cada limpieza de baño · Diariamente en espejos de alto tráfico",
+    errores: "Usar agua caliente (deja rayas) · Aplicar sobre vidrio caliente (>40°C) · Usar papel toalla (deja pelusa) · Aplicar directo en mamparas sin paño (goteos)",
+    casos: [
+      { caso: "Mamparas de ducha con película de jabón", solucion: "1) Remojar con Green Earth 1:32, 5 min. 2) Enjuagar. 3) Aplicar Clear Image 1:64 con paño de microfibra. 4) Pulir con segundo paño seco. Resultado: sin niebla ni residuo." },
+      { caso: "Espejos con huellas y niebla en baño diario", solucion: "1) Diluir 2 oz/gal agua fría. 2) Pulverizar en paño (no directo). 3) Limpiar en movimientos circulares. 4) Pulir con paño seco libre de pelusa." },
+      { caso: "Ventanas tintadas / películas polarizadas", solucion: "Clear Image no tiene amoníaco, por lo que es seguro en películas. Aplicar 1:64 con paño, nunca con espátula metálica." }
+    ],
+    protocolos: [
+      "Acabado profesional en vidrio: 1) Paño húmedo con Clear Image 1:64. 2) Escobilla (squeegee) de arriba hacia abajo. 3) Segundo paño seco para bordes."
+    ]
+  },
+  clr: {
+    medidas: "Puro para manchas duras · 1:1 con agua tibia para manchas leves · Máximo 2 min de contacto · Enjuague abundante con agua FRÍA · Rinde ~64 aplicaciones por envase 32 oz",
+    frecuencia: "Semanal en áreas de agua dura · Quincenal en bebederos y grifería",
+    errores: "Usar en mármol, granito, aluminio o metal galvanizado · Dejar secar (mancha permanente) · Mezclar con cloro o lejía · Exceder 2 min de contacto · Usar en piedra natural",
+    casos: [
+      { caso: "Bebedero con sarro y calcio acumulado", solucion: "1) Aplicar CLR PRO con paño sobre la salida de agua. 2) Dejar máx 2 min (no dejar secar). 3) Frotar con cepillo suave. 4) Enjuagar con agua fría abundante. 5) Para filtros: sumergir en CLR 1:1 agua tibia, 2 min, cepillar y enjuagar." },
+      { caso: "Grifería y duchas con manchas de agua dura", solucion: "1) Superficie húmeda previa. 2) Aplicar CLR (o 1:1 si la mancha es leve). 3) 2 min máximo. 4) Frotar con esponja. 5) Enjuagar con agua fría. Repetir si la costra es gruesa." },
+      { caso: "Cafetera / hervidor con incrustaciones", solucion: "1) Diluir 1:1 con agua tibia. 2) Llenar el depósito. 3) Dejar 2 min. 4) Enjuagar varias veces con agua fría. 5) Consultar el manual del fabricante." }
+    ],
+    protocolos: [
+      "Sarro severo en inodoros/urinarios: aplicar con paño remojado, dejar 2 min, cepillar debajo del borde, enjuagar con agua fría."
+    ]
+  },
+  degreaser: {
+    medidas: "1:128 = 1 oz/gal (uso general) · 1:64 = 2 oz/gal (grasa media) · 1:32 = 4 oz/gal (grasa pesada) · 1:16 = 8 oz/gal (grasa extrema) · Agua caliente 100-140°F mejora el desempeño · Contacto 2-5 min (hasta 10 min en grasa pesada)",
+    frecuencia: "Semanal en áreas de grasa (cocinas, duchas) · Diario en pisos de cocina industrial",
+    errores: "Usar en aluminio · Mezclar con ácidos (CLR) · No enjuagar después (deja residuo pegajoso) · Aplicar de arriba hacia abajo (escurrimientos)",
+    casos: [
+      { caso: "Piso de cocina con grasa vieja y resbaladizo", solucion: "1) Diluir 1:64 (2 oz/gal) en agua caliente. 2) Aplicar con mopa, dejar 5 min. 3) Frotar con cepillo de cerdas. 4) Enjuagar con agua limpia. 5) Repetir si la grasa es muy antigua (1:32)." },
+      { caso: "Ducha con acumulación de jabón y grasa corporal", solucion: "1) Preliminar con Degreaser 1:128, dejar 3 min. 2) Frotar con cepillo. 3) Enjuagar. 4) Remate con Green Earth 1:32 para moho en juntas." },
+      { caso: "Trampa de grasa con residuo orgánico", solucion: "1) Diluir 1:32 en agua caliente. 2) Verter sobre la trampa. 3) Dejar 10 min. 4) Enjuagar con agua abundante. 5) No combinar con Odor Eliminator en el mismo momento (usa enzimas aparte)." }
+    ],
+    protocolos: [
+      "Preliminar de piso (antes de encerar): 1:128 con agua caliente, dejar 5 min, frotar, enjuagar y secar antes de aplicar acabado."
+    ]
+  },
+  odor: {
+    medidas: "1:64 = 1 oz/medio gal (superficies) · 2 oz directo por drenaje · 1:10 para manchas severas en alfombra · Rinde ~64 gal RTU por galón concentrado",
+    frecuencia: "2 veces por semana en drenajes · Tras cada incidente (vómito, orina) · Al final del día para que las enzimas actúen sin interrupción",
+    errores: "Mezclar con desinfectantes quaternarios (mata las enzimas) · Congelar el concentrado (mata las bacterias) · Combinar con cloro · Aplicar en horario de tráfico (necesita 30 min sin interrupción)",
+    casos: [
+      { caso: "Olor a orina persistente en juntas de piso", solucion: "1) Limpiar superficie primero. 2) Verter Odor Eliminator 1:10 sobre las juntas. 3) Dejar 30 min al aire (enzimas actúan sin interrupción). 4) No enjuagar. 5) Repetir 2 veces por semana." },
+      { caso: "Vómito en alfombra o tapicería", solucion: "1) Retirar sólidos. 2) Aplicar directo 1:10 sobre la mancha. 3) Dejar 10-30 min. 4) Absorber con toallas. 5) Aspirar. 6) Ventilar hasta secar." },
+      { caso: "Desagüe con mal olor / trampa de grasa", solucion: "1) Verter 2 oz directo en cada drenaje. 2) 2 veces por semana. 3) No usar desinfectante fuerte el mismo día. 4) Efecto continúa 3-7 días." }
+    ],
+    protocolos: [
+      "Mantenimiento de drenajes: 2 oz por drenaje, 2 veces por semana, preferiblemente al cierre del día."
+    ]
+  },
+  gum: {
+    medidas: "Rociar 2-3 segundos a 45° dentro de 2 pulgadas del chicle · Congelamiento efectivo en 30-60 seg (-22°F / -30°C) · 6.5 oz rinde para ~50 chicles",
+    frecuencia: "Según necesidad · Inmediatamente al detectar chicle (fresco es más fácil)",
+    errores: "Usar espátula metálica (raya) · Exponer el aerosol a >50°C · Perforar o incinerar · Usar sobre piel (riesgo de congelamiento)",
+    casos: [
+      { caso: "Chicle en alfombra o moqueta", solucion: "1) Insertar tubo en la válvula. 2) Rociar 2-3 seg a 45° desde 2\". 3) Esperar 30-60 seg hasta que esté sólido. 4) Raspar con espátula plástica. 5) Aspirar restos. 6) Repetir si queda residuo." },
+      { caso: "Cera de vela en piso o mueble", solucion: "1) Rociar 2-3 seg. 2) Esperar a que la cera se endurezca. 3) Desprender con espátula plástica. 4) Limpiar residuo con paño húmedo." },
+      { caso: "Adhesivo / pegamento en sillas o mesas", solucion: "1) Rociar brevemente. 2) Raspar con espátula plástica. 3) Limpiar superficie con paño. 4) No usar en piel ni en superficies porosas delicadas sin probar primero." }
+    ],
+    protocolos: [
+      "Regla clave: trabajar rápido. El chicle se endurece 30-60 seg y luego vuelve a pegarse. Raspar inmediatamente."
+    ]
+  },
+  "green-earth": {
+    medidas: "1:10 = 12 oz/gal (suelos pesados) · 1:20 = 6 oz/gal (suelos medios) · 1:32 = 4 oz/gal (duchas) · 1:64 = 2 oz/gal (suelos leves) · Contacto 3-5 min · Diluir solo con agua FRÍA",
+    frecuencia: "Semanal en duchas (prevención de moho) · Tras cada mancha en alfombra",
+    errores: "Mezclar con cloro (gas tóxico) o amoníaco · Usar sin diluir · Exponer a luz solar (degrada el peróxido) · Usar en mármol · Esperar eficacia contra óxido (no la tiene)",
+    casos: [
+      { caso: "Moho negro en juntas de ducha", solucion: "1) Prelimpiar. 2) Aplicar Green Earth 1:32 sobre azulejos y lechada. 3) Dejar 5 min sin secar. 4) Frotar con cepillo de cerdas duras. 5) Enjuagar. 6) Repetir si el moho es profundo." },
+      { caso: "Película de jabón en mamparas y accesorios", solucion: "1) Diluir 1:32. 2) Pulverizar, dejar 3-5 min. 3) Frotar con paño. 4) Enjuagar. 5) Remate con Clear Image 1:64 para brillo sin rayas." },
+      { caso: "Mancha en alfombra (vino, café, barro)", solucion: "1) Aplicar pequeña cantidad directa. 2) Agitar con espátula de hueso. 3) Dejar 3-5 min. 4) Absorber con toallas. 5) Enjuagar con agua limpia y secar. 6) Repetir si queda tinte." }
+    ],
+    protocolos: [
+      "Prevención semanal de moho: aplicar 1:32 en duchas al final de la semana, dejar 5 min, enjuagar. Secar superficies después de cada uso."
+    ]
+  }
+};
+
 function svgPlaceholder(nombre) {
   const esc = nombre.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
   const s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
@@ -590,14 +703,18 @@ function intentarRespuestaLocal(texto) {
   const esEliminar = /(remov|elimina|quit|mancha|manchas|sacar|quitar|limpiar|como.*quit|como.*elimina|como.*remov|como.*limpio|lavar|desmanchar)/i.test(n);
   const esSaludo = /^(hola|buenos dias|buenas tardes|buenas noches|hey|ey|alo|que tal|buen dia|buenas)/.test(n);
   const esGracias = /(gracias|thanks|muchas gracias|ok gracias)/.test(n);
+  const esCaso = /(caso|situacion|escenario|problema.*grande|problema.*dificil|ejemplo|caso real|que hago con|mancha de|incidente)/i.test(n);
+  const esErrores = /(errores|error comun|no debo|equivoco|common mistake|no hacer|que no.*hacer)/i.test(n);
+  const esFrecuencia = /(frecuencia|cada cuanto|cada cu[áa]nto tiempo|horario|programa de|mantenimiento|rutina de limpieza|que tan seguido)/i.test(n);
 
   const scored = buscarProductoScored(texto);
   const match = scored.map(x => x.p);
   const confianza = scored.length > 0 ? scored[0].score : 0;
   const confAlta = confianza >= 4;
+  const ex = match.length > 0 ? (datosExtra[match[0].id] || null) : null;
 
   if (esSaludo && !confAlta) {
-    return { exito: true, respuesta: `<b>¡Hola! 👋 Soy VIERNES.</b><br><br>Puedo ayudarte con:<br>• Diluciones y dosificación<br>• Tiempos de contacto<br>• Métodos de aplicación<br>• Patógenos que eliminan<br>• Primeros auxilios y seguridad<br>• Compatibilidad entre productos<br>• FastDraw y catálogo<br><br>¿Qué necesitas?` };
+    return { exito: true, respuesta: `<b>¡Hola! 👋 Soy VIERNES.</b><br><br>Puedo ayudarte con:<br>• Diluciones y medidas exactas<br>• Tiempos de contacto<br>• Métodos de aplicación paso a paso<br>• Casos reales resueltos (manchas, olores, incidentes)<br>• Errores comunes y frecuencia de uso<br>• Patógenos que eliminan<br>• Primeros auxilios y seguridad<br>• Compatibilidad entre productos<br>• FastDraw y catálogo<br><br>¿Qué necesitas?` };
   }
 
   if (esGracias) {
@@ -631,6 +748,32 @@ function intentarRespuestaLocal(texto) {
     if (p.fastDraw) r += `<br><b>⚙️ Requiere FastDraw ${p.fastDrawNum || ''}:</b> ${notaFastDraw}<br>`;
     if (p.proTips) r += `<br><b>💡 Tip:</b> ${p.proTips}<br>`;
     if (p.precaucion) r += `<br><b>⚠️ Precaución:</b> ${p.precaucion}`;
+    r += cardProductoChat(p);
+    return { exito: true, respuesta: r };
+  }
+
+  if (esFrecuencia && ex) {
+    const p = match[0];
+    let r = `<b>🕒 Frecuencia recomendada: ${p.nombre}</b><br><br>${ex.frecuencia}<br><br><b>Medidas exactas:</b> ${ex.medidas}`;
+    r += cardProductoChat(p);
+    return { exito: true, respuesta: r };
+  }
+
+  if (esErrores && ex) {
+    const p = match[0];
+    return { exito: true, respuesta: `<div class="rounded-xl p-3 mb-2 border" style="background: #FEF2F2; border-color: #FECACA;"><b class="text-red-700 text-sm"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Errores comunes con ${p.nombre}</b></div>${ex.errores}` };
+  }
+
+  if (esCaso && ex) {
+    const p = match[0];
+    let r = `<b>📚 Casos reales resueltos con ${p.nombre}:</b><br><br>`;
+    ex.casos.forEach((c, i) => {
+      r += `<b>Caso ${i+1} — ${c.caso}:</b><br>${c.solucion}<br><br>`;
+    });
+    if (ex.protocolos && ex.protocolos.length) {
+      r += `<b>📋 Protocolos de referencia:</b><br>`;
+      ex.protocolos.forEach(pr => { r += `• ${pr}<br><br>`; });
+    }
     r += cardProductoChat(p);
     return { exito: true, respuesta: r };
   }
@@ -686,10 +829,13 @@ function intentarRespuestaLocal(texto) {
 
   if (confAlta && esDilucion) {
     const p = match[0];
+    const exD = datosExtra[p.id];
     let r = `<b>💧 Dilución: ${p.nombre}</b><br><br><b>${p.dilucion}</b><br><br>`;
+    if (exD && exD.medidas) r += `<b>📏 Medidas exactas:</b> ${exD.medidas}<br><br>`;
     if (p.fastDraw) r += `<div class="rounded-lg p-2.5 mb-2 border" style="background:#FEF7EC;border-color:#F9D8A8;"><b>⚙️ Requiere FastDraw ${p.fastDrawNum || ''}:</b> ${notaFastDraw}</div>`;
     r += `<b>Método:</b> ${p.metodoAplicacion}`;
     if (p.proTips) r += `<br><br><b>💡 Tip:</b> ${p.proTips}`;
+    if (exD && exD.frecuencia) r += `<br><br><b>🕒 Frecuencia:</b> ${exD.frecuencia}`;
     r += cardProductoChat(p);
     return { exito: true, respuesta: r };
   }
@@ -705,10 +851,17 @@ function intentarRespuestaLocal(texto) {
 
   if (confAlta && esAplicacion) {
     const p = match[0];
+    const exA = datosExtra[p.id];
     let r = `<b>📋 Aplicación: ${p.nombre}</b><br><br>${p.metodoAplicacion}<br><br>`;
     r += `<b>Dilución:</b> ${p.dilucion}<br><b>Tiempo:</b> ${p.tiempo}`;
+    if (exA && exA.medidas) r += `<br><b>📏 Medidas exactas:</b> ${exA.medidas}`;
+    if (exA && exA.protocolos && exA.protocolos.length) {
+      r += `<br><br><b>📋 Protocolos documentados:</b><br>`;
+      exA.protocolos.forEach(pr => { r += `• ${pr}<br>`; });
+    }
     if (p.fastDraw) r += `<br><br><b>⚙️ FastDraw ${p.fastDrawNum || ''}:</b> ${notaFastDraw}`;
     if (p.proTips) r += `<br><br><b>💡 Tip:</b> ${p.proTips}`;
+    if (exA && exA.errores) r += `<br><br><b>⚠️ Evita:</b> ${exA.errores}`;
     r += cardProductoChat(p);
     return { exito: true, respuesta: r };
   }
@@ -817,22 +970,26 @@ function intentarRespuestaLocal(texto) {
 }
 
 function systemPrompt() {
-  const cat = productos.map((p, i) =>
-    `[${i+1}] ${p.nombre} · ${p.fabricante} · ${p.clasificacion} · pH ${p.ph} · Dilución ${p.dilucion} · Tiempo ${p.tiempo} · Uso: ${p.uso} · Superficies: ${p.superficies} · Método: ${p.metodoAplicacion} · Patógenos: ${p.patogenos} · Precaución: ${p.precaucion} · FastDraw: ${p.fastDraw ? "SÍ" : "NO"}`
-  ).join("\n\n");
+  const cat = productos.map((p, i) => {
+    const ex = datosExtra[p.id] || {};
+    return `[${i+1}] ${p.nombre} · ${p.fabricante} · ${p.clasificacion} · pH ${p.ph} · Dilución ${p.dilucion} · Medidas exactas: ${ex.medidas || "N/A"} · Tiempo ${p.tiempo} · Uso: ${p.uso} · Superficies: ${p.superficies} · Método: ${p.metodoAplicacion} · Patógenos: ${p.patogenos} · Precaución: ${p.precaucion} · Frecuencia: ${ex.frecuencia || "N/A"} · Errores comunes: ${ex.errores || "N/A"} · FastDraw: ${p.fastDraw ? "SÍ" : "NO"}` +
+      (ex.casos ? `\nCasos documentados:\n${ex.casos.map(c => `- ${c.caso}: ${c.solucion}`).join("\n")}` : "") +
+      (ex.protocolos ? `\nProtocolos:\n${ex.protocolos.map(pr => `- ${pr}`).join("\n")}` : "");
+  }).join("\n\n");
 
   return `Eres VIERNES, asistente técnico experto de DBS (Diversified Building Services), creado por el Sr. Daniel Naula.
 
 El operario hizo una pregunta que NO estaba cubierta por tu base de conocimiento local. Debes responder basándote en tu conocimiento general y el catálogo oficial.
 
-CATÁLOGO OFICIAL DBS:
+CATÁLOGO OFICIAL DBS (con datos técnicos, casos reales y protocolos):
 ${cat}
 
 REGLAS:
 1. SOLO recomiendas productos de este catálogo. Nunca menciones marcas externas.
 2. Español neutro, profesional, máximo 200 palabras.
 3. Escribe nombres EXACTOS de los productos.
-4. Si la pregunta no es sobre químicos de limpieza, redirige amablemente al tema del catálogo.`;
+4. Si la pregunta no es sobre químicos de limpieza, redirige amablemente al tema del catálogo.
+5. Responde con pasos numerados cuando la pregunta sea sobre eliminar manchas, olores o problemas específicos.`;
 }
 
 async function fetchCORS(url, opts, onP) {
@@ -1005,7 +1162,11 @@ async function ejecutarDiagnostico() {
     "¿En qué superficies no uso CLR?",
     "Puedo mezclar AF79 con CLR",
     "¿Cómo quito moho en duchas?",
-    "Tips para usar Degreaser"
+    "Tips para usar Degreaser",
+    "Caso real: orina en juntas",
+    "Errores comunes con CLR",
+    "Cada cuanto aplico Odor Eliminator",
+    "Medidas exactas de AF79"
   ];
 
   let ok = 0;
