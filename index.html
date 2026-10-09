@@ -207,8 +207,8 @@
             <span class="text-[10px] text-slate-400">·</span>
             <span class="text-[10px] text-slate-400">Base técnica local + IA</span>
           </div>
-          <p class="font-bold text-white text-sm">¡Hola! 👋</p>
-          <p class="text-slate-300 leading-relaxed">Tengo información técnica completa de cada químico: dosis, tiempos, patógenos, primeros auxilios, compatibilidades y más. Pregúntame lo que necesites.</p>
+          <p class="font-bold text-white text-sm" id="saludoTitulo">¡Hola! 👋</p>
+          <p class="text-slate-300 leading-relaxed" id="saludoTexto">Tengo información técnica completa de cada químico: dosis, tiempos, patógenos, primeros auxilios, compatibilidades y más. Pregúntame lo que necesites.</p>
           <div class="flex flex-wrap gap-1.5 pt-1">
             <button onclick="enviarMensajeRapido('¿Cómo diluyo AF79?')" class="text-[10px] bg-slate-800 hover:text-white font-semibold px-2.5 py-1.5 rounded-lg border border-slate-700 transition-all" onmouseover="this.style.background='#0F4C8C'" onmouseout="this.style.background=''">💧 Dilución AF79</button>
             <button onclick="enviarMensajeRapido('¿Qué mata AF79?')" class="text-[10px] bg-slate-800 hover:text-white font-semibold px-2.5 py-1.5 rounded-lg border border-slate-700 transition-all" onmouseover="this.style.background='#0F4C8C'" onmouseout="this.style.background=''">🦠 Qué mata AF79</button>
@@ -629,12 +629,40 @@ function filtrar(cat) {
 
 let historial = [];
 
+// ═══════════════════════════════════════════════════════════════
+// SALUDOS ALEATORIOS (cada vez que abres el asistente)
+// ═══════════════════════════════════════════════════════════════
+const SALUDOS = [
+  { t: "¡Hola! 👋", m: "Soy <b>VIERNES</b>, un asistente de inteligencia creado por el <b>Señor Daniel</b> para poder guiarte con cualquier duda con respecto al manejo y utilización de los químicos del catálogo." },
+  { t: "¡Buenas! 👋", m: "Soy <b>VIERNES</b>, tu asistente creado por el <b>Señor Daniel</b>. Estoy aquí para resolver todo lo relacionado con el uso, dilución y seguridad de nuestros químicos." },
+  { t: "¡Hey! ¿Qué tal? 😊", m: "Soy <b>VIERNES</b>, asistente de inteligencia diseñado por el <b>Señor Daniel</b> para orientarte en el manejo correcto de cada producto del catálogo." },
+  { t: "¡Bienvenido! 👋", m: "Soy <b>VIERNES</b>, el asistente que el <b>Señor Daniel</b> creó para que resuelvas cualquier duda sobre nuestros químicos: cómo usarlos, diluirlos y aplicarlos." },
+  { t: "¡Hola de nuevo! 👋", m: "Soy <b>VIERNES</b>, creado por el <b>Señor Daniel</b> para guiarte paso a paso en el manejo y la utilización de los químicos DBS." },
+  { t: "¡Qué gusto! 😊", m: "Soy <b>VIERNES</b>, asistente de inteligencia del <b>Señor Daniel</b>, listo para ayudarte con el uso correcto de cualquier químico del catálogo." },
+  { t: "¡Hola! 👋 ¿En qué te ayudo?", m: "Soy <b>VIERNES</b>, el asistente del <b>Señor Daniel</b>, especializado en el manejo, dilución y aplicación de nuestros productos de limpieza profesional." },
+  { t: "¡Hola! 👋", m: "Soy <b>VIERNES</b>, tu guía de confianza creada por el <b>Señor Daniel</b> para todo lo relacionado con químicos de limpieza: dosificación, tiempos, precauciones y más." }
+];
+
+function saludoAleatorio() {
+  return SALUDOS[Math.floor(Math.random() * SALUDOS.length)];
+}
+
+function actualizarSaludoInicial() {
+  const g = saludoAleatorio();
+  const tit = document.getElementById("saludoTitulo");
+  const txt = document.getElementById("saludoTexto");
+  if (tit) tit.textContent = g.t;
+  if (txt) txt.innerHTML = g.m + " Pregúntame lo que necesites.";
+}
+
 function toggleChat() {
   const w = document.getElementById("chatWindow");
+  const abrir = w.classList.contains("hidden");
   w.classList.toggle("hidden");
   if (window.innerWidth <= 640) w.classList.toggle("abierto");
   const dot = document.getElementById("notifDot");
   if (dot) dot.classList.add('hidden');
+  if (abrir) actualizarSaludoInicial(); // nuevo saludo aleatorio cada vez que se abre
 }
 function preguntar(nombre) { const w = document.getElementById("chatWindow"); if (w.classList.contains("hidden")) toggleChat(); enviarMensajeRapido(`¿Para qué se usa exactamente ${nombre}?`); }
 function enviarMensajeRapido(texto) { document.getElementById("chatInput").value = texto; enviarMensaje(new Event('submit')); }
@@ -714,7 +742,8 @@ function intentarRespuestaLocal(texto) {
   const ex = match.length > 0 ? (datosExtra[match[0].id] || null) : null;
 
   if (esSaludo && !confAlta) {
-    return { exito: true, respuesta: `<b>¡Hola! 👋 Soy VIERNES.</b><br><br>Puedo ayudarte con:<br>• Diluciones y medidas exactas<br>• Tiempos de contacto<br>• Métodos de aplicación paso a paso<br>• Casos reales resueltos (manchas, olores, incidentes)<br>• Errores comunes y frecuencia de uso<br>• Patógenos que eliminan<br>• Primeros auxilios y seguridad<br>• Compatibilidad entre productos<br>• FastDraw y catálogo<br><br>¿Qué necesitas?` };
+    const g = saludoAleatorio();
+    return { exito: true, respuesta: `<b>${g.t}</b><br>${g.m}<br><br>Puedo ayudarte con:<br>• Diluciones y medidas exactas<br>• Tiempos de contacto<br>• Métodos de aplicación paso a paso<br>• Casos reales resueltos (manchas, olores, incidentes)<br>• Errores comunes y frecuencia de uso<br>• Patógenos que eliminan<br>• Primeros auxilios y seguridad<br>• Compatibilidad entre productos<br>• FastDraw y catálogo<br><br>¿Qué necesitas?` };
   }
 
   if (esGracias) {
@@ -1215,6 +1244,7 @@ async function testInicial() {
 window.addEventListener("DOMContentLoaded", () => {
   document.getElementById('year').textContent = new Date().getFullYear();
   renderizarGaleria();
+  actualizarSaludoInicial();
   setTimeout(testInicial, 500);
 });
 </script>
