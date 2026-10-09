@@ -257,7 +257,7 @@ function decodificarKeyPublica() {
 }
 
 const GROQ_API_KEY = (window.GROQ_API_KEY_OVERRIDE || decodificarKeyPublica() || "PEGA_AQUI_TU_GROQ_API_KEY");
-const MODELOS_GROQ = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "gemma2-9b-it"];
+const MODELOS_GROQ = ["openai/gpt-oss-120b", "openai/gpt-oss-20b"];
 const CORS_PROXIES = [
   { nombre: "corsproxy.io", build: (url) => "https://corsproxy.io/?url=" + encodeURIComponent(url) },
   { nombre: "allorigins",   build: (url) => "https://api.allorigins.win/raw?url=" + encodeURIComponent(url) },
