@@ -77,6 +77,7 @@
 <script src="config.js"></script>
 <script src="groq-public.js"></script>
 </head>
+</head>
 <body class="text-slate-200 min-h-screen flex flex-col relative">
 
 <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-700/60 sticky top-0 z-40">
@@ -226,6 +227,10 @@
 
     <div class="p-3 bg-slate-900 border-t border-slate-700 shrink-0 safe-bottom">
       <form onsubmit="enviarMensaje(event)" class="flex items-center gap-2">
+        <label class="p-3 text-white rounded-xl transition-all shrink-0 active:scale-95 shadow-md cursor-pointer" style="background: linear-gradient(135deg, #E8761C, #C75F0F);" title="Tomar foto de la mancha">
+          <input type="file" id="chatImage" accept="image/*" capture="environment" class="hidden">
+          <i class="fa-solid fa-camera text-sm"></i>
+        </label>
         <input type="text" id="chatInput" placeholder="Pregúntale a VIERNES…" class="flex-grow px-4 py-3 bg-slate-800 border border-slate-700 text-white rounded-xl text-xs focus:outline-none focus:ring-2 focus:bg-slate-900 transition-all min-w-0">
         <button type="submit" class="p-3 text-white rounded-xl transition-all shrink-0 active:scale-95 shadow-md" style="background: linear-gradient(135deg, #0F4C8C, #1B6BB5);">
           <i class="fa-solid fa-arrow-up text-sm"></i>
@@ -257,6 +262,7 @@ function decodificarKeyPublica() {
 }
 
 const GROQ_API_KEY = (window.GROQ_API_KEY_OVERRIDE || decodificarKeyPublica() || "PEGA_AQUI_TU_GROQ_API_KEY");
+const GEMINI_API_KEY = (window.GEMINI_API_KEY_OVERRIDE || "");
 const MODELOS_GROQ = ["openai/gpt-oss-120b", "openai/gpt-oss-20b", "qwen/qwen3.8-27b", "allam-2-7b"];
 const CORS_PROXIES = [
   { nombre: "corsproxy.io", build: (url) => "https://corsproxy.io/?url=" + encodeURIComponent(url) },
@@ -1111,11 +1117,114 @@ async function buscarEnWeb(texto) {
   return null;
 }
 
+async function analizarImagenGemini(base64, mimeType, prompt) {
+  const modelo = "gemini-2.0-flash";
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${GEMINI_API_KEY}`;
+  const body = {
+    contents: [{
+      parts: [
+        { text: prompt },
+        { inline_data: { mime_type: mimeType, data: base64 } }
+      ]
+    }]
+  };
+  const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  if (!res.ok) { const t = await res.text(); throw new Error("Gemini HTTP " + res.status + " " + t.slice(0, 120)); }
+  const data = await res.json();
+  const texto = (data.candidates?.[0]?.content?.parts || []).map(p => p.text || "").join("");
+  if (!texto) throw new Error("Gemini: sin respuesta");
+  return texto;
+}
+
+let imagenPendiente = null;
+
+function adjuntarFotoArchivo(file) {
+  if (!file || !file.type.startsWith("image/")) return;
+  const lector = new FileReader();
+  lector.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const MAX = 1024;
+      const escala = Math.min(1, MAX / Math.max(img.width, img.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.round(img.width * escala);
+      canvas.height = Math.round(img.height * escala);
+      canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+      imagenPendiente = { base64: dataUrl.split(",")[1], mimeType: "image/jpeg", dataUrl };
+      const cm = document.getElementById("chatMessages");
+      const pv = document.createElement("div");
+      pv.className = "flex justify-end";
+      pv.innerHTML = `<div class="rounded-2xl rounded-tr-md overflow-hidden shadow-md max-w-[70%] border border-slate-700"><img src="${dataUrl}" class="w-full h-auto"></div>`;
+      cm.appendChild(pv);
+      cm.scrollTop = cm.scrollHeight;
+      document.getElementById("chatInput").placeholder = "Describe la mancha (opcional) y envía…";
+    };
+    img.src = lector.result;
+  };
+  lector.readAsDataURL(file);
+}
+
+async function analizarFoto(contexto) {
+  const cm = document.getElementById("chatMessages");
+  const img = imagenPendiente;
+  imagenPendiente = null;
+
+  const bm = document.createElement("div");
+  bm.className = "flex items-start gap-3";
+  bm.innerHTML = `<div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 shadow-md" style="background: linear-gradient(135deg, #E8761C, #C75F0F);">
+      <i class="fa-solid fa-brain text-white text-sm"></i>
+    </div>
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl rounded-tl-md p-3.5 text-xs shadow-sm w-full">
+      <div class="flex items-center gap-2">
+        <span class="text-[10px] font-black tracking-widest" style="color: var(--brand-orange);">VIERNES</span>
+        <span class="typing-dots"><span></span><span></span><span></span></span>
+      </div>
+      <p class="text-[10px] text-slate-400 mt-1">Analizando la foto con IA de visión…</p>
+    </div>`;
+  cm.appendChild(bm);
+  cm.scrollTop = cm.scrollHeight;
+
+  let cuerpo = "";
+  try {
+    if (!GEMINI_API_KEY) throw new Error("GEMINI_KEY_NO_CONFIGURADA");
+    const catalogo = productos.map(p => `${p.nombre}: ${p.uso}`).join("\n");
+    const prompt = `Eres VIERNES, asistente técnico de DBS (Diversified Building Services). El operario envió una foto${contexto ? ` y dice: "${contexto}"` : ""}. Analiza la imagen e identifica: 1) tipo de mancha o suciedad, 2) tipo de superficie. Luego recomienda cómo eliminarla usando SOLO productos de este catálogo DBS:
+${catalogo}
+
+Responde en español, máximo 150 palabras, con pasos numerados y el nombre EXACTO del producto recomendado. Si no es una mancha o no aplica ningún producto del catálogo, dílo con amabilidad.`;
+    const r = await analizarImagenGemini(img.base64, img.mimeType, prompt);
+    cuerpo = r.replace(/\*\*(.*?)\*\*/g, "<b>$1</b>").replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>");
+    const match = buscarProducto(r + " " + (contexto || ""));
+    if (match.length > 0) cuerpo += match.slice(0, 2).map(cardProductoChat).join("");
+    cuerpo += `<div class="mt-2 pt-2 border-t border-slate-700 flex items-center gap-2">
+      <span class="source-badge source-groq"><i class="fa-solid fa-eye"></i> Visión IA · Gemini</span>
+    </div>`;
+  } catch (err) {
+    if (String(err.message).includes("GEMINI_KEY_NO_CONFIGURADA")) {
+      cuerpo = `<b>📸 Análisis de fotos por visión</b><br><br>Para activarlo, agrega una API key de Gemini (gratis) en <code>config.js</code>:<br><br><code>window.GEMINI_API_KEY_OVERRIDE = "tu_key";</code><br><br>Obtén una gratis en <b>aistudio.google.com/apikey</b>. Con ella, VIERNES identificará la mancha de la foto y recomendará el producto DBS ideal.`;
+    } else {
+      cuerpo = `<b>No pude analizar la foto.</b><br><br>Error: ${String(err.message).slice(0, 150)}<br><br>Mientras tanto, describe la mancha con palabras (ej. "mancha de grasa en piso de cocina") y te recomendaré el producto.`;
+    }
+  }
+
+  const bubble = bm.querySelector(".bg-slate-800");
+  if (bubble) bubble.innerHTML = `<div class="text-xs text-slate-200 leading-relaxed">${cuerpo}</div>`;
+  cm.scrollTop = cm.scrollHeight;
+  historial.push({ role: "user", text: "[foto] " + (contexto || "mancha en foto") });
+  historial.push({ role: "model", text: cuerpo.replace(/<[^>]+>/g, "") });
+}
+
 async function enviarMensaje(e) {
   if (e) e.preventDefault();
   const input = document.getElementById("chatInput");
   const texto = input.value.trim();
-  if (!texto) return;
+  if (!texto && !imagenPendiente) return;
+
+  if (imagenPendiente) {
+    await analizarFoto(texto);
+    if (!texto) return;
+  }
 
   const cm = document.getElementById("chatMessages");
 
@@ -1343,6 +1452,12 @@ window.addEventListener("DOMContentLoaded", () => {
   document.getElementById('year').textContent = new Date().getFullYear();
   renderizarGaleria();
   actualizarSaludoInicial();
+  const fileInput = document.getElementById("chatImage");
+  if (fileInput) fileInput.addEventListener("change", (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (f) adjuntarFotoArchivo(f);
+    e.target.value = "";
+  });
   setTimeout(testInicial, 500);
 });
 </script>
