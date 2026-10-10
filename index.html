@@ -732,7 +732,7 @@ function buscarProducto(texto) {
 
 // Búsqueda para fotos: ignora palabras de superficie genéricas que Gemini
 // menciona al describir cualquier imagen, y solo devuelve el mejor match
-const PALABRAS_GENERICAS_FOTO = ["ceramica","plastico","madera","vidrio","vidrios","alfombra","alfombras","jabon","jabones","piso","pisos","superficie","superficies","azulejo","azulejos","cocina","baño","baños","sanitario","imagen","foto","mancha","manchas","limpieza","suciedad","residuo","color","forma","fondo","producto"];
+const PALABRAS_GENERICAS_FOTO = ["ceramica","plastico","madera","vidrio","vidrios","alfombra","alfombras","piso","pisos","superficie","superficies","azulejo","azulejos","cocina","baño","baños","sanitario","imagen","foto","mancha","manchas","limpieza","suciedad","residuo","color","forma","fondo","producto"].map(normalizar);
 
 function buscarProductoFoto(texto) {
   const n = " " + normalizar(texto) + " ";
