@@ -13,7 +13,15 @@ Aplicación web con el catálogo de químicos de Diversified Building Services y
 - `config.example.js` — plantilla para copiar
 - `images/` — fotos de productos y logo
 
-## IA de Groq
+## Visión IA (fotos de manchas)
+
+El botón 📷 del chat permite tomar o subir una foto de una mancha.
+VIERNES la analiza con **Gemini 2.0 Flash** y recomienda el producto DBS ideal.
+
+1. Obtén una API key gratis en <https://aistudio.google.com/apikey>
+2. En `config.js` descomenta y pega:
+   `window.GEMINI_API_KEY_OVERRIDE = "tu_key";`
+3. Listo — la foto se analiza en el chat
 
 - **Local:** usa `config.js` (no se sube a GitHub)
 - **Público:** usa `groq-public.js` (key ofuscada en base64)
