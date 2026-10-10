@@ -174,7 +174,7 @@
           <div class="font-black text-sm leading-tight tracking-wider">VIERNES</div>
           <div id="statusText" class="text-[10px] text-blue-100/80 mt-0.5 flex items-center gap-1.5">
             <span id="statusDot" class="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block"></span>
-            Verificando conexión…
+            <span id="statusLabel">Verificando conexión…</span>
           </div>
         </div>
       </div>
@@ -1188,9 +1188,9 @@ async function enviarMensaje(e) {
   cm.appendChild(bm);
   cm.scrollTop = cm.scrollHeight;
 
-  const st = document.getElementById("statusText");
+  const st = document.getElementById("statusLabel");
   const sd = document.getElementById("statusDot");
-  st.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block animate-pulse"></span> Consultando IA…`;
+  st.textContent = "Consultando IA…";
   sd.className = "w-1.5 h-1.5 rounded-full bg-amber-400 inline-block animate-pulse";
 
   const prog = (m) => { const el = document.getElementById("progresoTexto"); if (el) el.textContent = m; };
@@ -1207,7 +1207,7 @@ async function enviarMensaje(e) {
       <span class="source-badge source-groq"><i class="fa-solid fa-wand-magic-sparkles"></i> IA Groq</span>
       <span class="text-[9px] text-slate-400">${r.modelo} · ${r.via}</span>
     </div>`;
-    st.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span> VIERNES activo`;
+    st.textContent = "VIERNES activo";
     sd.className = "w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block";
   } catch (err) {
     if (err.message.includes("API Key no configurada")) {
@@ -1231,7 +1231,7 @@ async function enviarMensaje(e) {
         • <b>Superficies:</b> "¿en qué no uso CLR?"
       </div>`;
     }
-    st.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block"></span> Solo base local`;
+    st.textContent = "Solo base local";
     sd.className = "w-1.5 h-1.5 rounded-full bg-amber-400 inline-block";
   }
 
@@ -1240,7 +1240,7 @@ async function enviarMensaje(e) {
     const web = await buscarEnWeb(texto);
     if (web) {
       cuerpo = web;
-      st.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span> VIERNES activo`;
+      st.textContent = "VIERNES activo";
       sd.className = "w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block";
       const webBubble = bm.querySelector(".bg-slate-800");
       if (webBubble) webBubble.innerHTML = `<div class="text-xs text-slate-200 leading-relaxed">${cuerpo}</div>
@@ -1321,19 +1321,20 @@ async function ejecutarDiagnostico() {
 }
 
 async function testInicial() {
-  const st = document.getElementById("statusText");
+  const st = document.getElementById("statusLabel");
   const sd = document.getElementById("statusDot");
+  if (!st || !sd) return;
   if (!GROQ_API_KEY || GROQ_API_KEY.includes("PEGA_AQUI")) {
-    st.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span> Base local activa`;
+    st.textContent = "Base local activa";
     sd.className = "w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block";
     return;
   }
   try {
     await consultarGroq("OK");
-    st.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span> Local + IA activos`;
+    st.textContent = "Local + IA activos";
     sd.className = "w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block";
   } catch (e) {
-    st.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span> Base local activa`;
+    st.textContent = "Base local activa";
     sd.className = "w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block";
   }
 }
