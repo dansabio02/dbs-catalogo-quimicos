@@ -1250,11 +1250,13 @@ Pasos: 1) ... 2) ... 3) ...`;
     let r = await analizarImagenGemini(img.base64, img.mimeType, prompt);
     r = filtrarSoloDBS(r);
     cuerpo = r.replace(/\*\*(.*?)\*\*/g, "<b>$1</b>").replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>");
-    if (!cuerpo.trim()) {
+    const noAplica = /no hay un producto del catálogo dbs adecuado/i.test(r) || !cuerpo.trim();
+    if (noAplica) {
       cuerpo = "No hay un producto del catálogo DBS adecuado para esta mancha. Describe la mancha con palabras (ej. \"mancha de grasa en piso\") y te recomendaré el producto exacto.";
+    } else {
+      const match = buscarProducto(r + " " + (contexto || ""));
+      if (match.length > 0) cuerpo += match.slice(0, 2).map(cardProductoChat).join("");
     }
-    const match = buscarProducto(r + " " + (contexto || ""));
-    if (match.length > 0) cuerpo += match.slice(0, 2).map(cardProductoChat).join("");
   } catch (err) {
     if (String(err.message).includes("GEMINI_KEY_NO_CONFIGURADA")) {
       cuerpo = `<b>📸 Análisis de fotos por visión</b><br><br>Para activarlo, agrega una API key de Gemini (gratis) en <code>config.js</code>:<br><br><code>window.GEMINI_API_KEY_OVERRIDE = "tu_key";</code><br><br>Obtén una gratis en <b>aistudio.google.com/apikey</b>. Con ella, VIERNES identificará la mancha de la foto y recomendará el producto DBS ideal.`;
