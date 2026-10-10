@@ -23,6 +23,11 @@ VIERNES la analiza con **Gemini 2.5 Flash** (con fallback a `gemini-flash-latest
    `window.GEMINI_API_KEY_OVERRIDE = "tu_key";`
 3. Listo — la foto se analiza en el chat
 
+> ⚠️ **Seguridad:** la versión pública usa `gemini-public.js` (key ofuscada en
+> base64, recuperable con devtools). Crea una key **aparte** en Google AI Studio,
+> restringida al dominio `dansabio02.github.io`, y con cuota baja. Tu key real
+> de Gemini queda solo en `config.js` (local).
+
 - **Local:** usa `config.js` (no se sube a GitHub)
 - **Público:** usa `groq-public.js` (key ofuscada en base64)
 - **Modelos activos:** `openai/gpt-oss-120b` y `openai/gpt-oss-20b` (verificados con tu key)

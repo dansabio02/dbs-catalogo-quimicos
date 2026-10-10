@@ -76,6 +76,7 @@
 </style>
 <script src="config.js"></script>
 <script src="groq-public.js"></script>
+<script src="gemini-public.js"></script>
 </head>
 </head>
 <body class="text-slate-200 min-h-screen flex flex-col relative">
@@ -262,7 +263,17 @@ function decodificarKeyPublica() {
 }
 
 const GROQ_API_KEY = (window.GROQ_API_KEY_OVERRIDE || decodificarKeyPublica() || "PEGA_AQUI_TU_GROQ_API_KEY");
-const GEMINI_API_KEY = (window.GEMINI_API_KEY_OVERRIDE || "");
+
+function decodificarGeminiPublica() {
+  try {
+    if (!window.GEMINI_PUBLIC_KEY_PARTS || !window.GEMINI_PUBLIC_KEY_PARTS.length) return "";
+    const b64 = window.GEMINI_PUBLIC_KEY_PARTS.join("");
+    const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+    return new TextDecoder().decode(bytes) || "";
+  } catch (e) { return ""; }
+}
+
+const GEMINI_API_KEY = (window.GEMINI_API_KEY_OVERRIDE || decodificarGeminiPublica() || "");
 const MODELOS_GROQ = ["openai/gpt-oss-120b", "openai/gpt-oss-20b", "qwen/qwen3.8-27b", "allam-2-7b"];
 const CORS_PROXIES = [
   { nombre: "corsproxy.io", build: (url) => "https://corsproxy.io/?url=" + encodeURIComponent(url) },
