@@ -1124,43 +1124,43 @@ async function buscarEnWeb(texto) {
   return null;
 }
 
+async function geminiLlamada(url, body) {
+  const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  if (!res.ok) return { ok: false, status: res.status };
+  const data = await res.json();
+  const texto = (data.candidates?.[0]?.content?.parts || []).map(p => p.text || "").join("");
+  return texto ? { ok: true, texto } : { ok: false, status: 0 };
+}
+
 async function analizarImagenGemini(base64, mimeType, prompt) {
   const modelos = ["gemini-flash-lite-latest", "gemini-flash-latest", "gemini-3.8-flash", "gemini-2.5-flash"];
+  const body = { contents: [{ parts: [{ text: prompt }, { inline_data: { mime_type: mimeType, data: base64 } }] }] };
   const errores = [];
   let hayCuota = false;
+
+  // Pasada 1: cada modelo tiene su propia cuota en el plan gratuito
   for (const modelo of modelos) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${GEMINI_API_KEY}`;
-    const body = {
-      contents: [{
-        parts: [
-          { text: prompt },
-          { inline_data: { mime_type: mimeType, data: base64 } }
-        ]
-      }]
-    };
-    for (let intento = 0; intento < 2; intento++) {
-      let res;
-      try {
-        res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-      } catch (e) { errores.push(modelo + ": red - " + e.message); break; }
-      if (res.ok) {
-        const data = await res.json();
-        const texto = (data.candidates?.[0]?.content?.parts || []).map(p => p.text || "").join("");
-        if (texto) return texto;
-        errores.push(modelo + ": sin contenido");
-        break;
-      }
-      if (res.status === 429 && intento === 0) {
-        hayCuota = true;
-        await new Promise(r => setTimeout(r, 4000));
-        continue;
-      }
-      errores.push(modelo + ": HTTP " + res.status);
-      if (res.status === 429) hayCuota = true;
-      break;
-    }
+    let r;
+    try { r = await geminiLlamada(url, body); }
+    catch (e) { errores.push(modelo + ": red"); continue; }
+    if (r.ok) return r.texto;
+    if (r.status === 429) { hayCuota = true; errores.push(modelo + ": cuota"); }
+    else errores.push(modelo + ": HTTP " + r.status);
   }
-  if (hayCuota) throw new Error("Cuota de Gemini excedida (demasiadas solicitudes). Espera 1-2 minutos y vuelve a enviar la foto.");
+
+  // Pasada 2: si todo fue cuota, esperar y reintentar la cadena una vez
+  if (hayCuota) {
+    await new Promise(r => setTimeout(r, 30000));
+    for (const modelo of modelos) {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${GEMINI_API_KEY}`;
+      let r;
+      try { r = await geminiLlamada(url, body); }
+      catch (e) { continue; }
+      if (r.ok) return r.texto;
+    }
+    throw new Error("Cuota de Gemini excedida (demasiadas solicitudes). Espera 1-2 minutos y vuelve a enviar la foto.");
+  }
   throw new Error(errores.join(" · ") || "Gemini: sin respuesta");
 }
 
