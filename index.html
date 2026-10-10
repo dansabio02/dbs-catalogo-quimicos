@@ -1129,7 +1129,7 @@ async function buscarEnWeb(texto) {
 }
 
 async function analizarImagenGemini(base64, mimeType, prompt) {
-  const modelos = ["gemini-3.8-flash", "gemini-flash-latest", "gemini-2.5-flash"];
+  const modelos = ["gemini-flash-latest", "gemini-3.8-flash", "gemini-2.5-flash"];
   let ultimoErr = "";
   for (const modelo of modelos) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${GEMINI_API_KEY}`;
