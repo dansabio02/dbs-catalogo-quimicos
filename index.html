@@ -257,7 +257,7 @@ function decodificarKeyPublica() {
 }
 
 const GROQ_API_KEY = (window.GROQ_API_KEY_OVERRIDE || decodificarKeyPublica() || "PEGA_AQUI_TU_GROQ_API_KEY");
-const MODELOS_GROQ = ["openai/gpt-oss-120b", "openai/gpt-oss-20b"];
+const MODELOS_GROQ = ["openai/gpt-oss-120b", "openai/gpt-oss-20b", "qwen/qwen3.8-27b", "allam-2-7b"];
 const CORS_PROXIES = [
   { nombre: "corsproxy.io", build: (url) => "https://corsproxy.io/?url=" + encodeURIComponent(url) },
   { nombre: "allorigins",   build: (url) => "https://api.allorigins.win/raw?url=" + encodeURIComponent(url) },
@@ -1064,13 +1064,14 @@ async function consultarGroq(texto, onP) {
   for (const modelo of MODELOS_GROQ) {
     try {
       if (onP) onP(`IA · ${modelo.split('-').slice(0,3).join('-')}…`);
-      const { res, via } = await fetchCORS(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_API_KEY}` }, body: JSON.stringify({ model: modelo, messages: msgs, temperature: 0.7, max_tokens: 800 }) }, onP);
+      const { res, via } = await fetchCORS(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_API_KEY}` }, body: JSON.stringify({ model: modelo, messages: msgs, temperature: 0.7, max_tokens: 2500 }) }, onP);
       const raw = await res.text();
       if (!res.ok) { errs.push(`${modelo}: HTTP ${res.status}`); continue; }
       let data;
       try { data = JSON.parse(raw); } catch (e) { errs.push(`${modelo}: JSON inválido`); continue; }
-      const content = data.choices?.[0]?.message?.content;
-      if (content) return { texto: content.trim(), modelo, via };
+      const msg = data.choices?.[0]?.message;
+      const content = (msg?.content || msg?.reasoning_content || "").trim();
+      if (content) return { texto: content, modelo, via };
       errs.push(`${modelo}: sin contenido`);
     } catch (e) { errs.push(`${modelo}: ${e.message.split('\n')[0]}`); }
   }
@@ -1241,7 +1242,8 @@ async function enviarMensaje(e) {
       cuerpo = web;
       st.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span> VIERNES activo`;
       sd.className = "w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block";
-      bm.querySelector(".bg-slate-800").innerHTML = `<div class="text-xs text-slate-200 leading-relaxed">${cuerpo}</div>
+      const webBubble = bm.querySelector(".bg-slate-800");
+      if (webBubble) webBubble.innerHTML = `<div class="text-xs text-slate-200 leading-relaxed">${cuerpo}</div>
         <div class="mt-2 pt-2 border-t border-slate-700 flex items-center gap-2">
           <span class="source-badge source-groq"><i class="fa-solid fa-globe"></i> Búsqueda web</span>
         </div>`;
@@ -1252,7 +1254,8 @@ async function enviarMensaje(e) {
     }
   }
 
-  bm.querySelector(".bg-white").innerHTML = `<div class="text-xs text-slate-200 leading-relaxed">${cuerpo}</div>`;
+  const bubble = bm.querySelector(".bg-slate-800");
+  if (bubble) bubble.innerHTML = `<div class="text-xs text-slate-200 leading-relaxed">${cuerpo}</div>`;
   cm.scrollTop = cm.scrollHeight;
 }
 
