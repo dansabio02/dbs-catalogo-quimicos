@@ -1046,7 +1046,7 @@ CATÁLOGO OFICIAL DBS (con datos técnicos, casos reales y protocolos):
 ${cat}
 
 REGLAS:
-1. SOLO recomiendas productos de este catálogo. Nunca menciones marcas externas ni remedios caseros (vinagre, agua, bicarbonato, detergentes comunes, limón, alcohol, etc.).
+1. SOLO recomiendas productos de este catálogo. Nunca menciones marcas externas.
 2. Español neutro, profesional, máximo 200 palabras.
 3. Escribe nombres EXACTOS de los productos.
 4. Si la pregunta no es sobre químicos de limpieza, redirige amablemente al tema del catálogo.
@@ -1166,20 +1166,6 @@ async function analizarImagenGemini(base64, mimeType, prompt) {
 
 let imagenPendiente = null;
 
-const SUSTANCIAS_EXTERNAS = ["vinagre", "agua tibia", "agua caliente", "detergente de platos", "detergente líquido", "detergente común", "bicarbonato", "jabón común", "jabón de castilla", "alcohol isopropílico", "alcohol común", "leche", "jugo de limón", "limón", "agua oxigenada", "lejía", "cloro común", "sal de mesa", "mezcla casera", "fórmula casera", "remedio casero", "agua y jabón", "agua con jabón", "papel absorbente"];
-
-function filtrarSoloDBS(texto) {
-  const nombres = productos.map(p => p.nombre.toLowerCase());
-  const bloques = texto.split(/\n+/);
-  const filtrado = bloques.filter(bloque => {
-    const b = bloque.replace(/<[^>]+>/g, "").toLowerCase();
-    const mencionaDBS = nombres.some(n => b.includes(n));
-    if (mencionaDBS) return true;
-    return !SUSTANCIAS_EXTERNAS.some(s => b.includes(s));
-  });
-  return filtrado.join("\n");
-}
-
 function adjuntarFotoArchivo(file) {
   if (!file || !file.type.startsWith("image/")) return;
   const lector = new FileReader();
@@ -1242,24 +1228,19 @@ ${catalogo}
 
 REGLAS:
 1. Primero describe brevemente la mancha identificada y la superficie.
-2. Recomienda SOLO productos del catálogo DBS, con el nombre EXACTO.
-3. PROHIBIDO mencionar vinagre, agua tibia, detergente común, bicarbonato, alcohol, limón, lejía o cualquier producto o remedio externo.
-4. Formato (máximo 120 palabras, en español):
+2. Recomienda cómo eliminarla, con el nombre EXACTO del producto si aplica alguno del catálogo.
+3. Formato (máximo 120 palabras, en español):
 Mancha: [tipo] en [superficie]
-Producto DBS: [nombre exacto]
+Producto recomendado: [nombre]
 Pasos: 1) ... 2) ... 3) ...
-5. Si ningún producto del catálogo aplica, dilo al final, pero igual describe la mancha.`;
+4. Si ningún producto del catálogo aplica, dilo al final, pero igual describe la mancha.`;
     let r = await analizarImagenGemini(img.base64, img.mimeType, prompt);
-    r = filtrarSoloDBS(r);
     cuerpo = r.replace(/\*\*(.*?)\*\*/g, "<b>$1</b>").replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>");
     if (!cuerpo.trim()) {
       cuerpo = "No pude identificar la mancha con claridad. Describe la mancha con palabras (ej. \"mancha de grasa en piso\") y te recomendaré el producto exacto.";
     }
-    const noAplica = /ningún producto del catálogo aplica|no hay un producto del catálogo dbs adecuado/i.test(r);
-    if (!noAplica) {
-      const match = buscarProducto(r + " " + (contexto || ""));
-      if (match.length > 0) cuerpo += match.slice(0, 2).map(cardProductoChat).join("");
-    }
+    const match = buscarProducto(r + " " + (contexto || ""));
+    if (match.length > 0) cuerpo += match.slice(0, 2).map(cardProductoChat).join("");
   } catch (err) {
     if (String(err.message).includes("GEMINI_KEY_NO_CONFIGURADA")) {
       cuerpo = `<b>📸 Análisis de fotos por visión</b><br><br>Para activarlo, agrega una API key de Gemini (gratis) en <code>config.js</code>:<br><br><code>window.GEMINI_API_KEY_OVERRIDE = "tu_key";</code><br><br>Obtén una gratis en <b>aistudio.google.com/apikey</b>. Con ella, VIERNES identificará la mancha de la foto y recomendará el producto DBS ideal.`;
@@ -1361,7 +1342,7 @@ async function enviarMensaje(e) {
   let cuerpo = "";
   try {
     const r = await consultarGroq(texto, prog);
-    cuerpo = filtrarSoloDBS(r.texto).replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
+    cuerpo = r.texto.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
     historial.push({ role: "user", text: texto });
     historial.push({ role: "model", text: r.texto });
     const match = buscarProducto(texto + " " + r.texto);
