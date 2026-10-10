@@ -730,6 +730,33 @@ function buscarProducto(texto) {
   return buscarProductoScored(texto).map(x => x.p);
 }
 
+// Búsqueda para fotos: ignora palabras de superficie genéricas que Gemini
+// menciona al describir cualquier imagen, y solo devuelve el mejor match
+const PALABRAS_GENERICAS_FOTO = ["ceramica","plastico","madera","vidrio","vidrios","alfombra","alfombras","jabon","jabones","piso","pisos","superficie","superficies","azulejo","azulejos","cocina","baño","baños","sanitario","imagen","foto","mancha","manchas","limpieza","suciedad","residuo","color","forma","fondo","producto"];
+
+function buscarProductoFoto(texto) {
+  const n = " " + normalizar(texto) + " ";
+  if (!n.trim()) return [];
+  const scored = productos.map(p => {
+    let score = 0;
+    p.keywords.forEach(k => {
+      const nk = normalizar(k);
+      if (!nk || PALABRAS_GENERICAS_FOTO.includes(nk)) return;
+      const stem = nk.replace(/es$|s$/, "");
+      if (n.includes(" " + nk + " ")) score += nk.length * 2;
+      else if (n.includes(nk)) score += nk.length;
+      else if (stem.length > 3 && n.includes(stem)) score += stem.length;
+    });
+    const nombre = normalizar(p.nombre);
+    if (n.includes(nombre)) score += 100;
+    nombre.split(/\s+/).forEach(t => { if (t.length > 3 && n.includes(t)) score += 10; });
+    const clas = normalizar(p.clasificacion);
+    if (clas && n.includes(clas)) score += 30;
+    return { p, score };
+  }).filter(x => x.score >= 8).sort((a, b) => b.score - a.score);
+  return scored.slice(0, 1).map(x => x.p);
+}
+
 function cardProductoChat(p) {
   return `<div class="rounded-xl p-2.5 flex items-center gap-3 mt-2 border" style="background: #F7F9FC; border-color: #E2E8F0;">
     <div class="w-12 h-12 rounded-lg bg-white border border-slate-200 flex items-center justify-center overflow-hidden shrink-0">
@@ -1219,28 +1246,14 @@ async function analizarFoto(contexto) {
   try {
     if (!GEMINI_API_KEY) throw new Error("GEMINI_KEY_NO_CONFIGURADA");
     const catalogo = productos.map(p => `${p.nombre}: ${p.uso}`).join("\n");
-    const prompt = `Eres VIERNES, asistente técnico de DBS (Diversified Building Services). El operario envió una foto${contexto ? ` y dice: "${contexto}"` : ""}.
-
-TAREA: 1) Identifica el tipo de mancha o suciedad y la superficie. 2) Recomienda cómo eliminarla.
-
-CATÁLOGO DBS (único permitido):
+    const prompt = `Eres VIERNES, asistente técnico de DBS (Diversified Building Services). El operario envió una foto${contexto ? ` y dice: "${contexto}"` : ""}. Analiza la imagen e identifica: 1) tipo de mancha o suciedad, 2) tipo de superficie. Luego recomienda cómo eliminarla usando SOLO productos de este catálogo DBS:
 ${catalogo}
 
-REGLAS:
-1. Primero describe brevemente la mancha identificada y la superficie.
-2. Recomienda cómo eliminarla, con el nombre EXACTO del producto si aplica alguno del catálogo.
-3. Formato (máximo 120 palabras, en español):
-Mancha: [tipo] en [superficie]
-Producto recomendado: [nombre]
-Pasos: 1) ... 2) ... 3) ...
-4. Si ningún producto del catálogo aplica, dilo al final, pero igual describe la mancha.`;
-    let r = await analizarImagenGemini(img.base64, img.mimeType, prompt);
+Responde en español, máximo 150 palabras, con pasos numerados y el nombre EXACTO del producto recomendado. Si no es una mancha o no aplica ningún producto del catálogo, dílo con amabilidad.`;
+    const r = await analizarImagenGemini(img.base64, img.mimeType, prompt);
     cuerpo = r.replace(/\*\*(.*?)\*\*/g, "<b>$1</b>").replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>");
-    if (!cuerpo.trim()) {
-      cuerpo = "No pude identificar la mancha con claridad. Describe la mancha con palabras (ej. \"mancha de grasa en piso\") y te recomendaré el producto exacto.";
-    }
-    const match = buscarProducto(r + " " + (contexto || ""));
-    if (match.length > 0) cuerpo += match.slice(0, 2).map(cardProductoChat).join("");
+    const match = buscarProductoFoto(r + " " + (contexto || ""));
+    if (match.length > 0) cuerpo += match.slice(0, 1).map(cardProductoChat).join("");
   } catch (err) {
     if (String(err.message).includes("GEMINI_KEY_NO_CONFIGURADA")) {
       cuerpo = `<b>📸 Análisis de fotos por visión</b><br><br>Para activarlo, agrega una API key de Gemini (gratis) en <code>config.js</code>:<br><br><code>window.GEMINI_API_KEY_OVERRIDE = "tu_key";</code><br><br>Obtén una gratis en <b>aistudio.google.com/apikey</b>. Con ella, VIERNES identificará la mancha de la foto y recomendará el producto DBS ideal.`;
