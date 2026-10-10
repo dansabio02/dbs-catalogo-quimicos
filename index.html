@@ -1118,22 +1118,29 @@ async function buscarEnWeb(texto) {
 }
 
 async function analizarImagenGemini(base64, mimeType, prompt) {
-  const modelo = "gemini-2.0-flash";
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${GEMINI_API_KEY}`;
-  const body = {
-    contents: [{
-      parts: [
-        { text: prompt },
-        { inline_data: { mime_type: mimeType, data: base64 } }
-      ]
-    }]
-  };
-  const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-  if (!res.ok) { const t = await res.text(); throw new Error("Gemini HTTP " + res.status + " " + t.slice(0, 120)); }
-  const data = await res.json();
-  const texto = (data.candidates?.[0]?.content?.parts || []).map(p => p.text || "").join("");
-  if (!texto) throw new Error("Gemini: sin respuesta");
-  return texto;
+  const modelos = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-2.5-flash-lite"];
+  let ultimoErr = "";
+  for (const modelo of modelos) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${GEMINI_API_KEY}`;
+    const body = {
+      contents: [{
+        parts: [
+          { text: prompt },
+          { inline_data: { mime_type: mimeType, data: base64 } }
+        ]
+      }]
+    };
+    let res;
+    try {
+      res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    } catch (e) { ultimoErr = e.message; continue; }
+    if (!res.ok) { ultimoErr = "Gemini HTTP " + res.status; continue; }
+    const data = await res.json();
+    const texto = (data.candidates?.[0]?.content?.parts || []).map(p => p.text || "").join("");
+    if (texto) return texto;
+    ultimoErr = "Gemini: sin respuesta";
+  }
+  throw new Error(ultimoErr || "Gemini: sin respuesta");
 }
 
 let imagenPendiente = null;

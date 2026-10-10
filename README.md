@@ -16,7 +16,7 @@ Aplicación web con el catálogo de químicos de Diversified Building Services y
 ## Visión IA (fotos de manchas)
 
 El botón 📷 del chat permite tomar o subir una foto de una mancha.
-VIERNES la analiza con **Gemini 2.0 Flash** y recomienda el producto DBS ideal.
+VIERNES la analiza con **Gemini 2.5 Flash** (con fallback a `gemini-flash-latest`) y recomienda el producto DBS ideal.
 
 1. Obtén una API key gratis en <https://aistudio.google.com/apikey>
 2. En `config.js` descomenta y pega:
