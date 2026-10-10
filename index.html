@@ -1077,6 +1077,39 @@ async function consultarGroq(texto, onP) {
   throw new Error(errs.join('\n'));
 }
 
+async function buscarEnWeb(texto) {
+  const q = encodeURIComponent(texto);
+  // 1) Wikipedia en español (API con CORS habilitado)
+  try {
+    const wikiUrl = `https://es.wikipedia.org/w/api.php?action=query&list=search&srsearch=${q}&format=json&srlimit=3&origin=*`;
+    const res = await fetch(wikiUrl);
+    const data = await res.json();
+    const resultados = (data.query && data.query.search) || [];
+    if (resultados.length) {
+      let r = `<b>🌐 Resultados de la web (Wikipedia):</b><br><br>`;
+      resultados.forEach(it => {
+        const snippet = (it.snippet || "").replace(/<[^>]+>/g, "");
+        const url = "https://es.wikipedia.org/wiki/" + encodeURIComponent(it.title.replace(/ /g, "_"));
+        r += `• <b><a href="${url}" target="_blank" rel="noopener" style="color:#1B6BB5;text-decoration:underline">${it.title}</a></b><br>${snippet}<br><br>`;
+      });
+      r += `<span class="text-[9px] text-slate-400">Si tu pregunta es sobre un producto del catálogo, prefiere preguntar por su nombre exacto.</span>`;
+      return r;
+    }
+  } catch (e) { /* continúa con el siguiente motor */ }
+
+  // 2) DuckDuckGo Instant Answers (API con CORS habilitado)
+  try {
+    const ddgUrl = `https://api.duckduckgo.com/?q=${q}&format=json&no_html=1&skip_disambig=1`;
+    const res = await fetch(ddgUrl);
+    const data = await res.json();
+    if (data.AbstractText) {
+      return `<b>🌐 Resultado web (DuckDuckGo):</b><br><br>${data.AbstractText}<br><br><a href="${data.AbstractURL}" target="_blank" rel="noopener" style="color:#1B6BB5;text-decoration:underline">${data.AbstractURL}</a>`;
+    }
+  } catch (e) { /* sin resultados */ }
+
+  return null;
+}
+
 async function enviarMensaje(e) {
   if (e) e.preventDefault();
   const input = document.getElementById("chatInput");
@@ -1093,6 +1126,30 @@ async function enviarMensaje(e) {
   cm.scrollTop = cm.scrollHeight;
 
   const local = intentarRespuestaLocal(texto);
+
+  // Búsqueda web explícita ("busca en google ...")
+  if (/\b(busca en google|buscar en google|busca en la web|buscar en la web|buscar en internet)\b/i.test(texto)) {
+    const consulta = texto.replace(/\b(busca en google|buscar en google|busca en la web|buscar en la web|buscar en internet)\b/gi, "").trim();
+    const web = await buscarEnWeb(consulta || texto);
+    if (web) {
+      const bm = document.createElement("div");
+      bm.className = "flex items-start gap-3";
+      bm.innerHTML = `<div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 shadow-md" style="background: linear-gradient(135deg, #E8761C, #C75F0F);">
+          <i class="fa-solid fa-globe text-white text-sm"></i>
+        </div>
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl rounded-tl-md p-3.5 text-xs shadow-sm w-full">
+          <div class="text-slate-200 leading-relaxed">${web}</div>
+          <div class="mt-2 pt-2 border-t border-slate-700 flex items-center gap-2">
+            <span class="source-badge source-groq"><i class="fa-solid fa-globe"></i> Búsqueda web</span>
+          </div>
+        </div>`;
+      cm.appendChild(bm);
+      cm.scrollTop = cm.scrollHeight;
+      historial.push({ role: "user", text: texto });
+      historial.push({ role: "model", text: web.replace(/<[^>]+>/g, '') });
+      return;
+    }
+  }
 
   if (local.exito) {
     const bm = document.createElement("div");
@@ -1175,6 +1232,24 @@ async function enviarMensaje(e) {
     }
     st.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block"></span> Solo base local`;
     sd.className = "w-1.5 h-1.5 rounded-full bg-amber-400 inline-block";
+  }
+
+  // Fallback final: búsqueda web si la IA no está disponible
+  if (!local.exito && !cuerpo.includes("IA Groq")) {
+    const web = await buscarEnWeb(texto);
+    if (web) {
+      cuerpo = web;
+      st.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span> VIERNES activo`;
+      sd.className = "w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block";
+      bm.querySelector(".bg-slate-800").innerHTML = `<div class="text-xs text-slate-200 leading-relaxed">${cuerpo}</div>
+        <div class="mt-2 pt-2 border-t border-slate-700 flex items-center gap-2">
+          <span class="source-badge source-groq"><i class="fa-solid fa-globe"></i> Búsqueda web</span>
+        </div>`;
+      cm.scrollTop = cm.scrollHeight;
+      historial.push({ role: "user", text: texto });
+      historial.push({ role: "model", text: web.replace(/<[^>]+>/g, '') });
+      return;
+    }
   }
 
   bm.querySelector(".bg-white").innerHTML = `<div class="text-xs text-slate-200 leading-relaxed">${cuerpo}</div>`;
