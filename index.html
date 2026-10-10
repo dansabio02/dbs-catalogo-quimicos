@@ -1235,25 +1235,28 @@ async function analizarFoto(contexto) {
     const catalogo = productos.map(p => `${p.nombre}: ${p.uso}`).join("\n");
     const prompt = `Eres VIERNES, asistente técnico de DBS (Diversified Building Services). El operario envió una foto${contexto ? ` y dice: "${contexto}"` : ""}.
 
-TAREA: identifica el tipo de mancha o suciedad y la superficie, y recomienda cómo eliminarla.
+TAREA: 1) Identifica el tipo de mancha o suciedad y la superficie. 2) Recomienda cómo eliminarla.
 
 CATÁLOGO DBS (único permitido):
 ${catalogo}
 
-REGLAS ESTRICTAS:
-1. Recomienda SOLO productos del catálogo DBS de arriba, con el nombre EXACTO.
-2. PROHIBIDO mencionar vinagre, agua tibia, detergente común, bicarbonato, alcohol, limón, lejía o cualquier producto o remedio externo.
-3. Si ningún producto del catálogo aplica, responde SOLO: "No hay un producto del catálogo DBS adecuado para esta mancha."
-4. Formato obligatorio, máximo 100 palabras, en español:
-Producto DBS recomendado: [nombre exacto]
-Pasos: 1) ... 2) ... 3) ...`;
+REGLAS:
+1. Primero describe brevemente la mancha identificada y la superficie.
+2. Recomienda SOLO productos del catálogo DBS, con el nombre EXACTO.
+3. PROHIBIDO mencionar vinagre, agua tibia, detergente común, bicarbonato, alcohol, limón, lejía o cualquier producto o remedio externo.
+4. Formato (máximo 120 palabras, en español):
+Mancha: [tipo] en [superficie]
+Producto DBS: [nombre exacto]
+Pasos: 1) ... 2) ... 3) ...
+5. Si ningún producto del catálogo aplica, dilo al final, pero igual describe la mancha.`;
     let r = await analizarImagenGemini(img.base64, img.mimeType, prompt);
     r = filtrarSoloDBS(r);
     cuerpo = r.replace(/\*\*(.*?)\*\*/g, "<b>$1</b>").replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>");
-    const noAplica = /no hay un producto del catálogo dbs adecuado/i.test(r) || !cuerpo.trim();
-    if (noAplica) {
-      cuerpo = "No hay un producto del catálogo DBS adecuado para esta mancha. Describe la mancha con palabras (ej. \"mancha de grasa en piso\") y te recomendaré el producto exacto.";
-    } else {
+    if (!cuerpo.trim()) {
+      cuerpo = "No pude identificar la mancha con claridad. Describe la mancha con palabras (ej. \"mancha de grasa en piso\") y te recomendaré el producto exacto.";
+    }
+    const noAplica = /ningún producto del catálogo aplica|no hay un producto del catálogo dbs adecuado/i.test(r);
+    if (!noAplica) {
       const match = buscarProducto(r + " " + (contexto || ""));
       if (match.length > 0) cuerpo += match.slice(0, 2).map(cardProductoChat).join("");
     }
