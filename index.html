@@ -460,26 +460,26 @@ const productos = [
     keywords: ["ducha","duchas","plastico","madera","ceramica","peroxido","green earth","moho","hongos","jabon","lechada","azulejo","moho negro","covid","sarscov2","influenza","mildew","garrapatas"]
   },
   {
-    id: "pherfect", nombre: "pHerfect", fabricante: "Consultar ficha técnica", presentacion: "Consultar ficha técnica",
+    id: "pherfect", nombre: "pHerfect", fabricante: "Betco", presentacion: "Galón 3.78L · Concentrado #53304 · FastDraw 2L #53347 · Dosing 32oz #53348",
     imagen: "images/pherfect.jpg",
-    clasificacion: "Neutralizador y acondicionador de suelos", categoria: "pisos",
-    ph: "Consultar ficha técnica (FDS)",
-    dilucion: "Consultar ficha técnica (FDS)",
-    tiempo: "Consultar ficha técnica (FDS)",
-    uso: "Penetra y limpia suelos resistentes y neutraliza ingredientes comunes del deshielo, como cloruro de sodio y magnesio.",
-    alternativos: "Excelente acondicionador de suelo tras el desmontaje y antes de recubrir. Prácticamente no deja residuos en el suelo.",
-    superficies: "Suelos resistentes aptos para decapado y recubrimiento.",
-    precaucion: "Consultar ficha técnica (FDS) para precauciones completas. Usar guantes y gafas durante el manejo.",
+    clasificacion: "Neutralizador y limpiador de suelos / removedor de residuos de deshielo", categoria: "pisos",
+    ph: "<1.0 (ácido — neutraliza residuos alcalinos)",
+    dilucion: "Limpieza diaria: 2 oz/gal (1:64) · Neutralizador de sal/clouro de calcio: 5 oz/gal (1:25) + enjuague con agua limpia · Neutralizar tras decapado: 3 oz/gal (1:40) + enjuague con agua limpia",
+    tiempo: "Sin tiempo de contacto: aplicar, mopar o frotar y enjuagar con agua limpia (usos neutralizantes)",
+    uso: "Remueve residuos de deshielo (ice melt) y otros residuos alcalinos del suelo. Neutraliza cloruro de sodio y magnesio. Ideal para acondicionar suelos después del decapado y antes de recubrir. Limpieza diaria de suelos terminados.",
+    alternativos: "Doble rendimiento: penetra y neutraliza en un solo paso (sin proceso de dos pasos). Prácticamente no deja residuos.",
+    superficies: "Pisos terminados (VCT, pisos duros con acabado). NO usar en Formica®, mármol, piedra pulida ni superficies dañadas por ácidos. Puede dañar ciertas alfombras — probar en área oculta primero.",
+    precaucion: "pH <1.0 (ácido). NO usar en Formica®, mármol, piedra pulida ni superficies sensibles a ácidos. Puede dañar ciertas alfombras: probar en área oculta. Usar guantes resistentes a químicos y ropa protectora.",
     fastDraw: false,
-    metodoAplicacion: "Aplicar sobre el suelo resistente: penetra y limpia mientras neutraliza los cloruros de sodio y magnesio del deshielo. No requiere proceso de dos pasos — neutraliza y limpia en un solo paso sencillo. Prácticamente no deja residuos.",
-    datosTecnicos: "Doble rendimiento: penetra y neutraliza en un solo paso · Excelente acondicionador de suelo tras el desmontaje · Prácticamente no deja residuos · Neutraliza cloruro de sodio y magnesio (deshielo)",
-    patogenos: "N/A (producto de limpieza, no desinfectante)",
-    activos: "Agentes neutralizantes y tensioactivos",
-    almacenamiento: "Consultar ficha técnica (FDS)",
-    primerosAuxilios: "Consultar ficha técnica (FDS) para primeros auxilios.",
-    incompatibilidades: "Consultar ficha técnica (FDS).",
-    proTips: "Doble rendimiento: penetra y neutraliza en un solo paso, sin proceso de dos pasos. Ideal para acondicionar el suelo después del decapado y antes de recubrir. Prácticamente no deja residuos.",
-    keywords: ["pherfect","neutralizador","neutralizacion","deshielo","cloruro","cloruros","sodio","magnesio","acondicionador","acondicionar","decapado","desmontaje","suelo","suelos","recubrir","recubrimiento","descontaminacion","residuos"]
+    metodoAplicacion: "LIMPIEZA DIARIA: diluir 2 oz por galón (1:64) y mopar el suelo húmedo. NEUTRALIZADOR (residuos de sal o clouro de calcio en pisos acabados): diluir 5 oz por galón (1:25), mopar o frotar y luego enjuagar con agua limpia. NEUTRALIZAR TRAS DECAPADO: diluir 3 oz por galón (1:40), mopar o frotar y enjuagar con agua limpia. Reciclar el envase vacío.",
+    datosTecnicos: "pH <1.0 · Color: amarillo · Espuma: moderada · Detergencia: excelente · Mojabilidad: muy buena · Fragancia: característica · Garantía 2 años · Betco item #53304",
+    patogenos: "N/A (no es desinfectante — es limpiador/neutralizador de suelos)",
+    activos: "Agentes neutralizantes y tensioactivos (TDS oficial Betco)",
+    almacenamiento: "Consultar SDS oficial en español: sds.betco.com/sds/BetcoSDS/533SP.pdf · Mantener cerrado.",
+    primerosAuxilios: "Consultar SDS oficial en español: sds.betco.com/sds/BetcoSDS/533SP.pdf — siendo un ácido (pH <1.0), ante cualquier contacto enjuagar con abundante agua y buscar atención médica.",
+    incompatibilidades: "Superficies sensibles a ácidos: Formica®, mármol, piedra pulida. Para mezclas no especificadas, consultar SDS.",
+    proTips: "No hace falta proceso de dos pasos: neutraliza y limpia en un solo paso. Después de decapar usa 1:40 y enjuaga con agua limpia antes de recubrir. En temporada de deshielo usa 1:25 para eliminar la sal. Prácticamente no deja residuos.",
+    keywords: ["pherfect","betco","neutralizador","neutralizacion","neutralizar","neutralizante","sal de deshielo","deshielo","ice melt","cloruro","cloruros","sodio","magnesio","calcio","acondicionador","acondicionar","decapado","desmontaje","strip","suelo","suelos","recubrir","recubrimiento","residuos","alcalino","alcalinos"]
   }
 ];
 
@@ -595,14 +595,18 @@ const datosExtra = {
     ]
   },
   pherfect: {
-    frecuencia: "Tras cada decapado, antes de recubrir · En temporada de deshielo, según la acumulación de sal",
-    errores: "Ejecutar un proceso de dos pasos (pHerfect neutraliza y limpia en un solo paso) · Esperar residuos en el suelo (prácticamente no deja) · Usarlo como desinfectante (no lo es)",
+    medidas: "Limpieza diaria: 2 oz/gal = 1:64 (mop húmedo) · Neutralizador de sal/cloruro de calcio: 5 oz/gal = 1:25 + enjuague con agua limpia · Neutralizar tras decapado: 3 oz/gal = 1:40 + enjuague con agua limpia",
+    frecuencia: "Diario según tráfico (limpieza diaria) · Tras cada decapado, antes de recubrir · En temporada de deshielo, según acumulación de sal",
+    errores: "Usar en Formica®, mármol o piedra pulida (el pH <1.0 los daña) · Saltarse el enjuague con agua limpia (obligatorio en 1:25 y 1:40) · Usarlo como desinfectante (no lo es) · Aplicar en alfombra sin probar antes en área oculta",
     casos: [
-      { caso: "Suelo con residuos de sal de deshielo (cloruro de sodio y magnesio)", solucion: "1) Aplicar pHerfect sobre el suelo resistente. 2) Dejar que penetre y limpie mientras neutraliza los cloruros de sodio y magnesio. 3) No se requiere proceso de dos pasos: neutraliza y limpia en un solo paso. 4) El suelo queda prácticamente sin residuos." },
-      { caso: "Acondicionamiento de suelo después del decapado y antes de recubrir", solucion: "1) Tras el decapado, aplicar pHerfect para penetrar y limpiar el suelo resistente. 2) Neutraliza los ingredientes comunes del deshielo en un solo paso. 3) El suelo queda acondicionado y prácticamente sin residuos, listo para recubrir." }
+      { caso: "Residuos de sal de deshielo (cloruro de sodio, magnesio o calcio) en piso terminado", solucion: "1) Diluir 5 oz/gal (1:25). 2) Mopar o frotar el piso. 3) Enjuagar con agua limpia. 4) El piso queda prácticamente sin residuos." },
+      { caso: "Piso recién decapado, antes de recubrir", solucion: "1) Diluir 3 oz/gal (1:40). 2) Mopar o frotar para neutralizar los residuos alcalinos del decapado. 3) Enjuagar con agua limpia. 4) Dejar secar y aplicar el recubrimiento. Sin proceso de dos pasos." },
+      { caso: "Limpieza diaria de piso con acabado", solucion: "1) Diluir 2 oz/gal (1:64). 2) Mopar el suelo húmedo. Listo — sin enjuague especial." }
     ],
     protocolos: [
-      "Un solo paso: aplicar pHerfect → penetra y limpia → neutraliza cloruros de sodio/magnesio → suelo acondicionado y casi sin residuos, listo para recubrir."
+      "Post-decapado en un solo paso: pHerfect 1:40 → mopar/frotar → enjuague con agua limpia → secar → recubrir.",
+      "Control de deshielo: pHerfect 1:25 para eliminar residuos de sal → enjuague con agua limpia → piso prácticamente sin residuos.",
+      "SDS oficial en español: sds.betco.com/sds/BetcoSDS/533SP.pdf"
     ]
   }
 };
