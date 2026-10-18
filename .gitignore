@@ -1,2 +1,5 @@
 # Configuración local (contiene tu API key — nunca subir)
 config.js
+
+# Repositorio anidado independiente del usuario
+viernes-asistente/
