@@ -458,6 +458,28 @@ const productos = [
     incompatibilidades: "Cloro (genera gas cloro), amoníaco, ácidos concentrados",
     proTips: "El peróxido se descompone con la luz solar: guarda en lugar oscuro. Aplicar en superficies frías para mayor eficacia. Excelente contra moho negro en juntas. No usar en mármol.",
     keywords: ["ducha","duchas","plastico","madera","ceramica","peroxido","green earth","moho","hongos","jabon","lechada","azulejo","moho negro","covid","sarscov2","influenza","mildew","garrapatas"]
+  },
+  {
+    id: "pherfect", nombre: "pHerfect", fabricante: "Consultar ficha técnica", presentacion: "Consultar ficha técnica",
+    imagen: "images/pherfect.jpg",
+    clasificacion: "Neutralizador y acondicionador de suelos", categoria: "pisos",
+    ph: "Consultar ficha técnica (FDS)",
+    dilucion: "Consultar ficha técnica (FDS)",
+    tiempo: "Consultar ficha técnica (FDS)",
+    uso: "Penetra y limpia suelos resistentes y neutraliza ingredientes comunes del deshielo, como cloruro de sodio y magnesio.",
+    alternativos: "Excelente acondicionador de suelo tras el desmontaje y antes de recubrir. Prácticamente no deja residuos en el suelo.",
+    superficies: "Suelos resistentes aptos para decapado y recubrimiento.",
+    precaucion: "Consultar ficha técnica (FDS) para precauciones completas. Usar guantes y gafas durante el manejo.",
+    fastDraw: false,
+    metodoAplicacion: "Aplicar sobre el suelo resistente: penetra y limpia mientras neutraliza los cloruros de sodio y magnesio del deshielo. No requiere proceso de dos pasos — neutraliza y limpia en un solo paso sencillo. Prácticamente no deja residuos.",
+    datosTecnicos: "Doble rendimiento: penetra y neutraliza en un solo paso · Excelente acondicionador de suelo tras el desmontaje · Prácticamente no deja residuos · Neutraliza cloruro de sodio y magnesio (deshielo)",
+    patogenos: "N/A (producto de limpieza, no desinfectante)",
+    activos: "Agentes neutralizantes y tensioactivos",
+    almacenamiento: "Consultar ficha técnica (FDS)",
+    primerosAuxilios: "Consultar ficha técnica (FDS) para primeros auxilios.",
+    incompatibilidades: "Consultar ficha técnica (FDS).",
+    proTips: "Doble rendimiento: penetra y neutraliza en un solo paso, sin proceso de dos pasos. Ideal para acondicionar el suelo después del decapado y antes de recubrir. Prácticamente no deja residuos.",
+    keywords: ["pherfect","neutralizador","neutralizacion","deshielo","cloruro","cloruros","sodio","magnesio","acondicionador","acondicionar","decapado","desmontaje","suelo","suelos","recubrir","recubrimiento","descontaminacion","residuos"]
   }
 ];
 
@@ -570,6 +592,17 @@ const datosExtra = {
     ],
     protocolos: [
       "Prevención semanal de moho: aplicar 1:32 en duchas al final de la semana, dejar 5 min, enjuagar. Secar superficies después de cada uso."
+    ]
+  },
+  pherfect: {
+    frecuencia: "Tras cada decapado, antes de recubrir · En temporada de deshielo, según la acumulación de sal",
+    errores: "Ejecutar un proceso de dos pasos (pHerfect neutraliza y limpia en un solo paso) · Esperar residuos en el suelo (prácticamente no deja) · Usarlo como desinfectante (no lo es)",
+    casos: [
+      { caso: "Suelo con residuos de sal de deshielo (cloruro de sodio y magnesio)", solucion: "1) Aplicar pHerfect sobre el suelo resistente. 2) Dejar que penetre y limpie mientras neutraliza los cloruros de sodio y magnesio. 3) No se requiere proceso de dos pasos: neutraliza y limpia en un solo paso. 4) El suelo queda prácticamente sin residuos." },
+      { caso: "Acondicionamiento de suelo después del decapado y antes de recubrir", solucion: "1) Tras el decapado, aplicar pHerfect para penetrar y limpiar el suelo resistente. 2) Neutraliza los ingredientes comunes del deshielo en un solo paso. 3) El suelo queda acondicionado y prácticamente sin residuos, listo para recubrir." }
+    ],
+    protocolos: [
+      "Un solo paso: aplicar pHerfect → penetra y limpia → neutraliza cloruros de sodio/magnesio → suelo acondicionado y casi sin residuos, listo para recubrir."
     ]
   }
 };
@@ -732,7 +765,7 @@ function buscarProducto(texto) {
 
 // Búsqueda para fotos: ignora palabras de superficie genéricas que Gemini
 // menciona al describir cualquier imagen, y solo devuelve el mejor match
-const PALABRAS_GENERICAS_FOTO = ["ceramica","plastico","madera","vidrio","vidrios","alfombra","alfombras","piso","pisos","superficie","superficies","azulejo","azulejos","cocina","baño","baños","sanitario","imagen","foto","mancha","manchas","limpieza","suciedad","residuo","color","forma","fondo","producto"].map(normalizar);
+const PALABRAS_GENERICAS_FOTO = ["ceramica","plastico","madera","vidrio","vidrios","alfombra","alfombras","piso","pisos","suelo","suelos","superficie","superficies","azulejo","azulejos","cocina","baño","baños","sanitario","imagen","foto","mancha","manchas","limpieza","suciedad","residuo","residuos","color","forma","fondo","producto"].map(normalizar);
 
 function buscarProductoFoto(texto) {
   const n = " " + normalizar(texto) + " ";
