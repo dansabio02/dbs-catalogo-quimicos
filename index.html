@@ -1104,17 +1104,33 @@ function systemPrompt() {
 
   return `Eres VIERNES, asistente técnico experto de DBS (Diversified Building Services), creado por el Sr. Daniel Naula.
 
-El operario hizo una pregunta que NO estaba cubierta por tu base de conocimiento local. Debes responder basándote en tu conocimiento general y el catálogo oficial.
-
-CATÁLOGO OFICIAL DBS (con datos técnicos, casos reales y protocolos):
+CATÁLOGO OFICIAL DBS (datos técnicos, casos reales y protocolos):
 ${cat}
 
-REGLAS:
-1. SOLO recomiendas productos de este catálogo. Nunca menciones marcas externas.
-2. Español neutro, profesional, máximo 200 palabras.
-3. Escribe nombres EXACTOS de los productos.
-4. Si la pregunta no es sobre químicos de limpieza, redirige amablemente al tema del catálogo.
-5. Responde con pasos numerados cuando la pregunta sea sobre eliminar manchas, olores o problemas específicos.`;
+INSTRUCCIONES:
+1. Responde con TODA la información que tengas sobre los químicos del catálogo. No te limites a los datos de arriba: usa tu conocimiento general, fichas técnicas, buenas prácticas y cualquier detalle relevante (ingredientes, compatibilidades, comparaciones, manejo, riesgos, alternativas).
+2. Prioriza los productos DBS en tus recomendaciones, pero puedes mencionar otras marcas o fuentes cuando aporte precisión a la respuesta.
+3. Español neutro, profesional y completo (hasta 400 palabras cuando el tema lo requiera).
+4. Escribe nombres EXACTOS de los productos.
+5. Responde con pasos numerados cuando la pregunta sea sobre eliminar manchas, olores o problemas específicos.
+6. Si no tienes información fiable, dilo con honestidad e indica dónde consultarla (ficha técnica o SDS del fabricante).`;
+}
+
+// Convierte tablas markdown (| col | col |) a HTML para mostrarlas en el chat
+function mdATablas(t) {
+  return t.replace(/(?:^|\n)((?:\|[^\n]*\|\s*\n?)+)/g, (m, bloque) => {
+    const filas = bloque.trim().split("\n").map(f => f.trim()).filter(f => f.startsWith("|"));
+    if (filas.length < 2) return m;
+    const celdas = filas.map(f => f.replace(/^\||\|$/g, "").split("|").map(c => c.trim()));
+    const cuerpo = celdas.filter((f, i) => !(i === 1 && f.every(c => /^[-: ]*$/.test(c))));
+    if (!cuerpo.length) return m;
+    const th = "border:1px solid #475569;padding:3px 6px;text-align:left;background:#1e293b;font-weight:700;color:#fff;";
+    const td = "border:1px solid #475569;padding:3px 6px;text-align:left;color:#e2e8f0;";
+    const html = '<table style="width:100%;border-collapse:collapse;font-size:10px;margin-top:6px;display:block;overflow-x:auto">' +
+      cuerpo.map((f, i) => "<tr>" + f.map(c => `<${i === 0 ? "th" : "td"} style="${i === 0 ? th : td}">${c}</${i === 0 ? "th" : "td"}>`).join("") + "</tr>").join("") +
+      "</table>";
+    return "\n" + html + "\n";
+  });
 }
 
 async function fetchCORS(url, opts, onP) {
@@ -1279,7 +1295,6 @@ async function analizarFoto(contexto) {
   cm.scrollTop = cm.scrollHeight;
 
   let cuerpo = "";
-  let groqExito = false;
   try {
     if (!GEMINI_API_KEY) throw new Error("GEMINI_KEY_NO_CONFIGURADA");
     const catalogo = productos.map(p => `${p.nombre}: ${p.uso}`).join("\n");
@@ -1288,7 +1303,7 @@ ${catalogo}
 
 Responde en español, máximo 150 palabras, con pasos numerados y el nombre EXACTO del producto recomendado. Si no es una mancha o no aplica ningún producto del catálogo, dílo con amabilidad.`;
     const r = await analizarImagenGemini(img.base64, img.mimeType, prompt);
-    cuerpo = r.replace(/\*\*(.*?)\*\*/g, "<b>$1</b>").replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>");
+    cuerpo = mdATablas(r).replace(/\*\*(.*?)\*\*/g, "<b>$1</b>").replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>");
     const match = buscarProductoFoto(r + " " + (contexto || ""));
     if (match.length > 0) cuerpo += match.slice(0, 1).map(cardProductoChat).join("");
   } catch (err) {
@@ -1327,7 +1342,10 @@ async function enviarMensaje(e) {
   input.value = "";
   cm.scrollTop = cm.scrollHeight;
 
-  const local = intentarRespuestaLocal(texto);
+  // Si el usuario pide información adicional / que investigue → no limitarse a la base local
+  const esAmpliada = /\b(investiga|investigar|investigame|busca informacion|busca informacion adicional|buscar informacion|informacion adicional|mas informacion|informacion completa|completa sobre|todo sobre|dime todo|amplia la informacion|profundiza)\b/i.test(normalizar(texto));
+
+  const local = esAmpliada ? { exito: false } : intentarRespuestaLocal(texto);
 
   // Búsqueda web explícita ("busca en google ...")
   if (/\b(busca en google|buscar en google|busca en la web|buscar en la web|buscar en internet)\b/i.test(texto)) {
@@ -1390,9 +1408,10 @@ async function enviarMensaje(e) {
   const prog = (m) => { const el = document.getElementById("progresoTexto"); if (el) el.textContent = m; };
 
   let cuerpo = "";
+  let groqExito = false;
   try {
     const r = await consultarGroq(texto, prog);
-    cuerpo = r.texto.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
+    cuerpo = mdATablas(r.texto).replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
     historial.push({ role: "user", text: texto });
     historial.push({ role: "model", text: r.texto });
     const match = buscarProducto(texto + " " + r.texto);
