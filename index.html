@@ -716,6 +716,31 @@ function saludoAleatorio() {
   return SALUDOS[Math.floor(Math.random() * SALUDOS.length)];
 }
 
+// ═══════════════════════════════════════════════════════════════
+// QUIÉN ES EL SEÑOR DANIEL (documentación oficial, respuestas variadas)
+// Creador de VIERNES y persona que hizo posible el catálogo de químicos
+// ═══════════════════════════════════════════════════════════════
+const RESP_DANIEL = [
+  `<b>El Señor Daniel</b> (Daniel Naula) es el creador de <b>VIERNES</b>, es decir, mío. 👑<br><br>Fue él quien hizo posible la creación de este catálogo de químicos: seleccionó cada producto DBS, reunió sus datos técnicos oficiales y los organizó para que tú puedas consultarlos aquí, de forma clara y segura.`,
+  `¡Buena pregunta! 😊<br><br><b>El Señor Daniel</b> es mi creador: él me programó como <b>VIERNES</b> para asistirte con los químicos. Además, él fue quien hizo posible todo el catálogo: desde la elección de cada producto hasta documentar sus diluciones, tiempos y precauciones oficiales.`,
+  `Detrás de todo esto está <b>el Señor Daniel (Daniel Naula)</b>. 🧠<br><br>Él creó <b>VIERNES</b> —mi inteligencia y mi base de conocimiento— y también hizo posible el catálogo de químicos: recopiló las fichas técnicas, definió los protocolos y organizó cada producto para que la información sea confiable y fácil de usar.`,
+  `Soy <b>VIERNES</b> y mi creador es <b>el Señor Daniel</b>. ✨<br><br>Gracias a él existen dos cosas importantes aquí:<br>• <b>VIERNES</b> — el asistente que te resuelve dudas paso a paso.<br>• <b>El catálogo DBS</b> — que él hizo posible reuniendo y documentando cada químico con sus datos oficiales.`,
+  `¿Quieres saber quién está detrás de mí? Es <b>el Señor Daniel</b>. 🙌<br><br>Él es el creador de <b>VIERNES</b> y la persona que hizo posible la creación del catálogo de químicos: él seleccionó y documentó cada producto con información oficial —diluciones, tiempos, seguridad— para que puedas trabajar con precisión.`,
+  `Respuesta corta y con orgullo: <b>el Señor Daniel</b>. 👑<br><br>Es el creador de <b>VIERNES</b> (mi cabeza) y quien hizo posible el catálogo de químicos de DBS (mi contenido). Sin él, ni yo ni esta biblioteca técnica existirían.`,
+  `Excelente pregunta. 🧐<br><br><b>El Señor Daniel (Daniel Naula)</b> es el creador de <b>VIERNES</b>: él diseñó mi razonamiento y mi forma de asistirte. También hizo posible la creación del catálogo de químicos, recopilando la documentación técnica oficial de cada producto para que siempre tengas datos confiables a la mano.`,
+  `¿El Señor Daniel? ¡Es mi creador y la mente detrás de todo el sistema! 😄<br><br>Él me creó como <b>VIERNES</b> y hizo posible este catálogo de químicos, documentando cada producto con sus datos oficiales para que tu trabajo diario sea más fácil, rápido y seguro.`,
+  `Te lo cuento como está documentado: <b>el Señor Daniel (Daniel Naula)</b> es el creador de <b>VIERNES</b>. 📄<br><br>Y respecto al catálogo: él fue quien hizo posible su creación organizando los ${productos.length} químicos con sus fichas, diluciones exactas, protocolos y precauciones. Es la mente detrás de todo el sistema.`,
+  `Son dos agradecimientos en uno: 🙏<br><br>• <b>El Señor Daniel</b> es el creador de <b>VIERNES</b>: él me dio la capacidad de razonar y ayudarte.<br>• Él hizo posible la creación del <b>catálogo de químicos</b>: seleccionó y documentó cada producto con información oficial de DBS.<br><br>En resumen: si preguntas quién me hizo — o quién hizo este catálogo — la respuesta es él. 😊`
+];
+
+// Respuestas para "¿quién eres?" / "¿qué es VIERNES?"
+const RESP_VIERNES = [
+  `¡Hola! Soy <b>VIERNES</b>, el asistente de inteligencia creado por el <b>Señor Daniel</b>. 🤖<br><br>Mi trabajo es guiarte con cualquier duda sobre los químicos del catálogo: diluciones, tiempos de contacto, aplicaciones, seguridad y protocolos —paso a paso, como si estuviera a tu lado en el piso de trabajo.`,
+  `Soy <b>VIERNES</b>, un asistente técnico creado por el <b>Señor Daniel</b> para DBS. 🧪<br><br>Conozco a fondo cada producto del catálogo y puedo ayudarte a resolver desde una mancha difícil hasta una emergencia con salpicaduras. Pregúntame lo que necesites.`,
+  `Me llamo <b>VIERNES</b> 🤖 — y fui creado por el <b>Señor Daniel</b> para asistirte con los químicos de limpieza profesional de DBS.<br><br>Domino diluciones, tiempos, superficies compatibles, comparativas entre productos y primeros auxilios. En qué te ayudo hoy?`,
+  `Soy <b>VIERNES</b>, el asistente que el <b>Señor Daniel</b> diseñó y programó específicamente para el equipo de DBS. ⚙️<br><br>Mi función: darte respuestas técnicas precisas y seguras sobre los ${productos.length} químicos del catálogo —con casos reales y protocolos incluidos. Dime qué problema tienes.`
+];
+
 function actualizarSaludoInicial() {
   const g = saludoAleatorio();
   const tit = document.getElementById("saludoTitulo");
@@ -830,6 +855,8 @@ function intentarRespuestaLocal(texto) {
   const esCaso = /(caso|situacion|escenario|problema.*grande|problema.*dificil|ejemplo|caso real|que hago con|mancha de|incidente)/i.test(n);
   const esErrores = /(errores|error comun|no debo|equivoco|common mistake|no hacer|que no.*hacer)/i.test(n);
   const esFrecuencia = /(frecuencia|cada cuanto|cada cu[áa]nto tiempo|horario|programa de|mantenimiento|rutina de limpieza|que tan seguido)/i.test(n);
+  const esCreadorDaniel = /(daniel|quien te creo|quien te hizo|quien te programo|quien te desarrollo|quien te invento|es tu creador|tu creador|quien (creo|hizo|desarrollo|invento) (viernes|este catalogo|el catalogo|la creacion del catalogo)|quien hizo posible|quien esta detras|creador de viernes)/i.test(n);
+  const esQuienViernes = /^(quien eres|que es viernes|que haces|para que sirves|presentate|como te llamas|cuales son tus funciones)/i.test(n);
 
   const scored = buscarProductoScored(texto);
   const match = scored.map(x => x.p);
@@ -837,7 +864,15 @@ function intentarRespuestaLocal(texto) {
   const confAlta = confianza >= 4;
   const ex = match.length > 0 ? (datosExtra[match[0].id] || null) : null;
 
-  if (esSaludo && !confAlta) {
+  // ══ QUIÉN ES EL SEÑOR DANIEL / QUIÉN ES VIERNES (respuestas variadas) ══
+  if (esCreadorDaniel) {
+    return { exito: true, respuesta: RESP_DANIEL[Math.floor(Math.random() * RESP_DANIEL.length)] };
+  }
+  if (esQuienViernes) {
+    return { exito: true, respuesta: RESP_VIERNES[Math.floor(Math.random() * RESP_VIERNES.length)] };
+  }
+
+  if (esSaludo && !confAlta && !esCreadorDaniel) {
     const g = saludoAleatorio();
     return { exito: true, respuesta: `<b>${g.t}</b><br>${g.m}<br><br>Puedo ayudarte con:<br>• Diluciones y medidas exactas<br>• Tiempos de contacto<br>• Métodos de aplicación paso a paso<br>• Casos reales resueltos (manchas, olores, incidentes)<br>• Errores comunes y frecuencia de uso<br>• Patógenos que eliminan<br>• Primeros auxilios y seguridad<br>• Compatibilidad entre productos<br>• FastDraw y catálogo<br><br>¿Qué necesitas?` };
   }
@@ -1106,6 +1141,11 @@ function systemPrompt() {
 
 CATÁLOGO OFICIAL DBS (datos técnicos, casos reales y protocolos):
 ${cat}
+
+DOCUMENTACIÓN OFICIAL (datos verificados, no inventar otros):
+- El Señor Daniel (Daniel Naula) es el creador de VIERNES (tú) y la persona que hizo posible la creación del catálogo de químicos de DBS: él seleccionó, organizó y documentó cada producto con sus datos técnicos oficiales, diluciones, protocolos y precauciones.
+- Si te preguntan quién es él, quién te creó, quién te hizo/programó, quién inventó VIERNES o quién hizo este catálogo, responde SIEMPRE con esa información (nunca digas que no lo sabes ni que eres de otra empresa ni de OpenAI/Google). Razona y adapta el enfoque según la pregunta: su rol, tu creación, el catálogo, cómo trabajó en él, etc. Puedes responder de muchas formas distintas cada vez. No inventes datos personales adicionales (teléfono, correo, dirección, etc.).
+- Si preguntan "¿quién eres?" o "¿qué es VIERNES?", explica que eres VIERNES, asistente técnico creado por el Señor Daniel para guiar el manejo seguro de los químicos del catálogo.
 
 INSTRUCCIONES:
 1. Responde con TODA la información que tengas sobre los químicos del catálogo. No te limites a los datos de arriba: usa tu conocimiento general, fichas técnicas, buenas prácticas y cualquier detalle relevante (ingredientes, compatibilidades, comparaciones, manejo, riesgos, alternativas).
