@@ -40,6 +40,28 @@ uso bajos, y pegarla en `groq-public.js` en lugar de la actual.
 2. Copia `config.example.js` como `config.js` y pega tu key
 3. Abre `index.html` en el navegador (o visita la URL en vivo)
 
+## Seguridad (auditoría y protecciones aplicadas)
+
+**Protecciones implementadas en `index.html`:**
+
+- **Anti-XSS:** sanitizer con allowlist (`limpiarHTML`) en toda respuesta de IA (Groq/Gemini) y búsqueda web; elimina `<script>`, `on*` handlers, `javascript:` y URLs peligrosas. Escape del input del usuario (`escaparHTML`) antes de renderizar.
+- **API keys nunca pasan por proxies:** si la petición lleva `Authorization`, solo se usa conexión directa — la clave no se envía a corsproxy.io/allorigins.
+- **Gemini con key en header** (`x-goog-api-key`), no en la URL — evita fugas en historial, logs y extensiones.
+- **CSP (Content-Security-Policy):** bloquea `<object>/<embed>`, scripts remotos inyectados, `base-uri` y `form-action` restrictivos.
+- **Anti-clickjacking:** la página no puede embeberse en iframes ajenos.
+- **Referrer policy** estricta + `rel="noopener noreferrer"` en enlaces externos.
+- `config.js` (keys reales) fuera de git (`.gitignore`).
+
+**Pendiente (requiere acción del dueño — no se puede hacer desde el código):**
+
+- [ ] Groq: crear una key **dedicada** en <https://console.groq.com/keys> para el sitio público y reemplazarla en `groq-public.js`
+- [ ] Gemini: crear una key en Google AI Studio **restringida al referer** `dansabio02.github.io` y reemplazarla en `gemini-public.js`
+- [ ] Ideal (futuro): backend proxy (Cloudflare Workers gratis) para no exponer keys en el navegador
+
+> ℹ️ Las keys públicas están ofuscadas en base64, pero **cualquier visitante puede decodificarlas**
+> con devtools. La ofuscación es disuasión, no seguridad real — las claves dedicadas/restringidas
+> son la mitigación práctica en un sitio 100% estático.
+
 ## Flujo del asistente
 
 1. Respuesta local (base de conocimiento) si hay confianza alta

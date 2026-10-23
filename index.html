@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0F4C8C">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src https:; media-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-src 'none'">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
 <title>DBS · Catálogo de Químicos & VIERNES</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -1173,9 +1176,53 @@ function mdATablas(t) {
   });
 }
 
+// ═══════════════════════════════════════════════════════════════
+// SEGURIDAD: escape de texto y saneamiento de HTML externo (anti-XSS)
+// ═══════════════════════════════════════════════════════════════
+function escaparHTML(t) {
+  return String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+const TAGS_PERMITIDOS = new Set(["B","I","STRONG","EM","BR","P","DIV","SPAN","UL","OL","LI","TABLE","THEAD","TBODY","TR","TH","TD","A","H1","H2","H3","H4","H5","HR","CODE","PRE","BLOCKQUOTE","SMALL","SUB","SUP","IMG"]);
+const ATRIB_PERMITIDOS = new Set(["href","style","class","colspan","rowspan","align","title","alt","width","height","src"]);
+const ONERROR_PLACEHOLDER = /^this\.onerror=null; this\.src='data:image\/svg\+xml[^']*'$/;
+
+// Elimina <script>, handlers on* y atributos peligrosos del HTML generado por IA / web externa.
+// Conserva el onerror SOLO del placeholder de imágenes de productos (patrón exacto y confiable).
+function limpiarHTML(html) {
+  const doc = new DOMParser().parseFromString("<div id='raiz-saneada'>" + String(html ?? "") + "</div>", "text/html");
+  const raiz = doc.getElementById("raiz-saneada");
+  const DESCONECTAR_CONSERVANDO_TEXTO = new Set(["SPAN", "DIV", "P", "TABLE", "TBODY", "THEAD", "TR", "TD", "TH"]);
+  (function recorrer(nodo) {
+    [...nodo.children].forEach(el => {
+      if (!TAGS_PERMITIDOS.has(el.tagName)) {
+        if (["SCRIPT", "STYLE", "IFRAME", "OBJECT", "EMBED", "LINK", "META", "FORM", "BASE", "SVG", "MATH", "BUTTON", "INPUT", "SELECT", "TEXTAREA"].includes(el.tagName)) el.remove();
+        else if (DESCONECTAR_CONSERVANDO_TEXTO.has(el.tagName)) el.replaceWith(...el.childNodes);
+        else el.remove();
+        return;
+      }
+      [...el.attributes].forEach(a => {
+        const nom = a.name.toLowerCase();
+        const val = (a.value || "").trim();
+        const peligroso = nom.startsWith("on") && !(nom === "onerror" && el.tagName === "IMG" && ONERROR_PLACEHOLDER.test(val));
+        const urlHuyendo = (nom === "src" || nom === "href") && !/^(https?:\/\/|data:image\/|images\/|#|mailto:)/i.test(val);
+        const estiloPeligroso = nom === "style" && /(url\s*\(|expression\s*\(|javascript:|@import)/i.test(val);
+        const excepcionPlaceholder = nom === "onerror" && el.tagName === "IMG" && ONERROR_PLACEHOLDER.test(val);
+        if (!excepcionPlaceholder && (peligroso || urlHuyendo || estiloPeligroso || !ATRIB_PERMITIDOS.has(nom))) el.removeAttribute(a.name);
+        else if (nom === "href" && /^https?:\/\//i.test(val)) { el.setAttribute("target", "_blank"); el.setAttribute("rel", "noopener noreferrer"); }
+      });
+      recorrer(el);
+    });
+  })(raiz);
+  return raiz.innerHTML;
+}
+
 async function fetchCORS(url, opts, onP) {
+  const conClave = !!(opts.headers && opts.headers.Authorization);
   const errs = [];
   try { if (onP) onP("Conectando…"); return { res: await fetch(url, opts), via: "directo" }; } catch (e) { errs.push("directo: " + e.message); }
+  // SEGURIDAD: las peticiones con API key NUNCA pasan por proxies CORS de terceros (no filtrar la clave).
+  if (conClave) throw new Error("Conexión directa falló (" + errs.join("; ") + "). Proxies deshabilitados por seguridad: la API key no se envía a terceros.");
   for (const pr of CORS_PROXIES) {
     try {
       if (onP) onP(`Vía ${pr.nombre}…`);
@@ -1222,9 +1269,9 @@ async function buscarEnWeb(texto) {
     if (resultados.length) {
       let r = `<b>🌐 Resultados de la web (Wikipedia):</b><br><br>`;
       resultados.forEach(it => {
-        const snippet = (it.snippet || "").replace(/<[^>]+>/g, "");
+        const snippet = escaparHTML((it.snippet || "").replace(/<[^>]+>/g, ""));
         const url = "https://es.wikipedia.org/wiki/" + encodeURIComponent(it.title.replace(/ /g, "_"));
-        r += `• <b><a href="${url}" target="_blank" rel="noopener" style="color:#1B6BB5;text-decoration:underline">${it.title}</a></b><br>${snippet}<br><br>`;
+        r += `• <b><a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#1B6BB5;text-decoration:underline">${escaparHTML(it.title)}</a></b><br>${snippet}<br><br>`;
       });
       r += `<span class="text-[9px] text-slate-400">Si tu pregunta es sobre un producto del catálogo, prefiere preguntar por su nombre exacto.</span>`;
       return r;
@@ -1237,7 +1284,8 @@ async function buscarEnWeb(texto) {
     const res = await fetch(ddgUrl);
     const data = await res.json();
     if (data.AbstractText) {
-      return `<b>🌐 Resultado web (DuckDuckGo):</b><br><br>${data.AbstractText}<br><br><a href="${data.AbstractURL}" target="_blank" rel="noopener" style="color:#1B6BB5;text-decoration:underline">${data.AbstractURL}</a>`;
+      const urlDDG = /^https?:\/\//i.test(data.AbstractURL || "") ? data.AbstractURL : "";
+      return `<b>🌐 Resultado web (DuckDuckGo):</b><br><br>${escaparHTML(data.AbstractText)}${urlDDG ? `<br><br><a href="${escaparHTML(urlDDG)}" target="_blank" rel="noopener noreferrer" style="color:#1B6BB5;text-decoration:underline">${escaparHTML(urlDDG)}</a>` : ""}`;
     }
   } catch (e) { /* sin resultados */ }
 
@@ -1245,7 +1293,8 @@ async function buscarEnWeb(texto) {
 }
 
 async function geminiLlamada(url, body) {
-  const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  // SEGURIDAD: la API key viaja en header (no en la URL) para que no quede en historial ni logs
+  const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": GEMINI_API_KEY }, body: JSON.stringify(body) });
   if (!res.ok) return { ok: false, status: res.status };
   const data = await res.json();
   const texto = (data.candidates?.[0]?.content?.parts || []).map(p => p.text || "").join("");
@@ -1260,7 +1309,7 @@ async function analizarImagenGemini(base64, mimeType, prompt) {
 
   // Pasada 1: cada modelo tiene su propia cuota en el plan gratuito
   for (const modelo of modelos) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${GEMINI_API_KEY}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent`;
     let r;
     try { r = await geminiLlamada(url, body); }
     catch (e) { errores.push(modelo + ": red"); continue; }
@@ -1273,7 +1322,7 @@ async function analizarImagenGemini(base64, mimeType, prompt) {
   if (hayCuota) {
     await new Promise(r => setTimeout(r, 30000));
     for (const modelo of modelos) {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${GEMINI_API_KEY}`;
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent`;
       let r;
       try { r = await geminiLlamada(url, body); }
       catch (e) { continue; }
@@ -1355,7 +1404,7 @@ Responde en español, máximo 150 palabras, con pasos numerados y el nombre EXAC
   }
 
   const bubble = bm.querySelector(".bg-slate-800");
-  if (bubble) bubble.innerHTML = `<div class="text-xs text-slate-200 leading-relaxed">${cuerpo}</div>`;
+  if (bubble) bubble.innerHTML = `<div class="text-xs text-slate-200 leading-relaxed">${limpiarHTML(cuerpo)}</div>`;
   cm.scrollTop = cm.scrollHeight;
   document.getElementById("chatInput").placeholder = "Pregúntale a VIERNES…";
   historial.push({ role: "user", text: "[foto] " + (contexto || "mancha en foto") });
@@ -1377,7 +1426,7 @@ async function enviarMensaje(e) {
 
   const um = document.createElement("div");
   um.className = "flex justify-end";
-  um.innerHTML = `<div class="text-white rounded-2xl rounded-tr-md p-3 text-xs max-w-[80%] font-medium shadow-md" style="background: linear-gradient(135deg, #0F4C8C, #1B6BB5);">${texto}</div>`;
+  um.innerHTML = `<div class="text-white rounded-2xl rounded-tr-md p-3 text-xs max-w-[80%] font-medium shadow-md" style="background: linear-gradient(135deg, #0F4C8C, #1B6BB5);">${escaparHTML(texto)}</div>`;
   cm.appendChild(um);
   input.value = "";
   cm.scrollTop = cm.scrollHeight;
@@ -1493,7 +1542,7 @@ async function enviarMensaje(e) {
       st.textContent = "VIERNES activo";
       sd.className = "w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block";
       const webBubble = bm.querySelector(".bg-slate-800");
-      if (webBubble) webBubble.innerHTML = `<div class="text-xs text-slate-200 leading-relaxed">${cuerpo}</div>`;
+      if (webBubble) webBubble.innerHTML = `<div class="text-xs text-slate-200 leading-relaxed">${limpiarHTML(cuerpo)}</div>`;
       cm.scrollTop = cm.scrollHeight;
       historial.push({ role: "user", text: texto });
       historial.push({ role: "model", text: web.replace(/<[^>]+>/g, '') });
@@ -1502,7 +1551,7 @@ async function enviarMensaje(e) {
   }
 
   const bubble = bm.querySelector(".bg-slate-800");
-  if (bubble) bubble.innerHTML = `<div class="text-xs text-slate-200 leading-relaxed">${cuerpo}</div>`;
+  if (bubble) bubble.innerHTML = `<div class="text-xs text-slate-200 leading-relaxed">${limpiarHTML(cuerpo)}</div>`;
   cm.scrollTop = cm.scrollHeight;
 }
 
@@ -1596,6 +1645,8 @@ window.addEventListener("DOMContentLoaded", () => {
     if (f) adjuntarFotoArchivo(f);
     e.target.value = "";
   });
+  // SEGURIDAD: impide que la página se embeba en iframes ajenos (clickjacking)
+  if (window.top !== window.self) { try { window.top.location.replace(window.location.href); } catch (e) { /* cross-origin */ } }
   setTimeout(testInicial, 500);
 });
 </script>
