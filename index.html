@@ -1638,7 +1638,7 @@ async function enviarMensaje(e) {
   let groqExito = false;
   try {
     const r = await consultarGroq(texto, prog);
-    cuerpo = mdATablas(r.texto).replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
+    cuerpo = mdATablas(r.texto).replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/(^|[\s(])\*([^*\n]+)\*(?=[\s).,;:!?]|$)/g, '$1<i>$2</i>').replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
     historial.push({ role: "user", text: texto });
     historial.push({ role: "model", text: r.texto });
     const match = buscarProducto(texto + " " + r.texto);
