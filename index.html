@@ -882,7 +882,16 @@ function cardProductoChat(p) {
   </div>`;
 }
 
+// Plantillas locales solo para datos exactos. Todo lo demás lo razona la IA;
+// la plantilla queda como respaldo si la IA no responde.
 function intentarRespuestaLocal(texto) {
+  const r = intentarRespuestaLocalBase(texto);
+  if (!r.exito) return r;
+  const datoExacto = /(diluy|dilucion|dosis|proporcion|cuanto.*agua|tiempo|cuanto.*tarda|dejar actuar|cuanto.*minuto|cuanto.*dejo|fastdraw|dosificador|catalogo|productos disponibles|que productos|lista)/.test(normalizar(texto));
+  return datoExacto ? r : { exito: false, alternativa: r.respuesta };
+}
+
+function intentarRespuestaLocalBase(texto) {
   const n = normalizar(texto);
   if (!n) return { exito: false };
 
@@ -1220,6 +1229,11 @@ MODO DE RAZONAMIENTO (razona antes de responder):
 - Explica brevemente el porqué técnico (pH, tipo de suciedad, química) cuando ayude al operario a hacerlo bien.
 - No repitas datos genéricos si no responden la pregunta concreta.
 
+ESTILO:
+- Conversa como un colega experto y cercano, en español natural. Nada de plantillas ni frases de relleno; no empieces con "¡Perfecto!" ni "Claro".
+- Adapta la longitud: corta para preguntas simples, con pasos numerados cuando haya procedimiento.
+- Razona el problema internamente y entrega la conclusión, el producto y los pasos. Si falta un dato clave (tipo de superficie, tipo de mancha), haz UNA pregunta concreta.
+
 INSTRUCCIONES:
 1. Responde con TODA la información que tengas sobre los químicos del catálogo. No te limites a los datos de arriba: usa tu conocimiento general, fichas técnicas, buenas prácticas y cualquier detalle relevante (ingredientes, compatibilidades, comparaciones, manejo, riesgos, alternativas).
 2. Prioriza los productos DBS en tus recomendaciones, pero puedes mencionar otras marcas o fuentes cuando aporte precisión a la respuesta.
@@ -1325,13 +1339,26 @@ INSTRUCCIONES:
 - Español, hasta 300 palabras. Si no tienes datos fiables, dilo con honestidad e indica dónde consultar (ficha técnica o SDS).`;
 }
 
+function construirContexto(texto) {
+  const top = buscarProductoScored(texto).slice(0, 2).map(x => x.p);
+  if (!top.length) return "";
+  return "\n\n[Fichas del catálogo relacionadas con la pregunta — úsalas como fuente principal]\n" + top.map(p => {
+    const ex = datosExtra[p.id] || {};
+    return `• ${p.nombre}: uso ${p.uso}; pH ${p.ph}; dilución ${p.dilucion}; tiempo ${p.tiempo}; superficies: ${p.superficies}; método: ${p.metodoAplicacion}; precaución: ${p.precaucion}` +
+      (ex.medidas ? `; medidas: ${ex.medidas}` : "") +
+      (ex.errores ? `; errores comunes: ${ex.errores}` : "") +
+      (ex.casos ? `; casos: ${ex.casos.map(c => c.caso + " → " + c.solucion).join(" | ")}` : "");
+  }).join("\n");
+}
+
 async function consultarGroq(texto, onP) {
   if (!GROQ_API_KEY || GROQ_API_KEY.includes("PEGA_AQUI") || GROQ_API_KEY.trim() === "") throw new Error("API Key no configurada");
   const url = "https://api.groq.com/openai/v1/chat/completions";
+  const contexto = construirContexto(texto);
   const construirMsgs = (prompt) => {
     const msgs = [{ role: "system", content: prompt }];
-    historial.slice(-6).forEach(h => msgs.push({ role: h.role === "model" ? "assistant" : "user", content: h.text }));
-    msgs.push({ role: "user", content: texto });
+    historial.slice(-10).forEach(h => msgs.push({ role: h.role === "model" ? "assistant" : "user", content: h.text }));
+    msgs.push({ role: "user", content: texto + contexto });
     return msgs;
   };
   const errores = [];
