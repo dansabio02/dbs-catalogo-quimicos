@@ -875,6 +875,19 @@ function intentarRespuestaLocal(texto) {
     return { exito: true, respuesta: RESP_VIERNES[Math.floor(Math.random() * RESP_VIERNES.length)] };
   }
 
+  // ══ TRIAJE: preguntas que la IA razona mejor que las plantillas locales ══
+  // 1) Mezcla de químicos EXTERNOS (cloro, detergente, vinagre...) no cubierta por plantillas
+  const productosEnTexto = /(af79|ph7q|clr|degreaser|green earth|clear image|odor eliminator|gum remover|pherfect)/i.test(n);
+  const mezclaExterna = esMezcla && !productosEnTexto && /(cloro|hipoclorito|lejia|blanqueador|amoniac|detergente|lavarropas|lavadora|vinagre|bicarbonato|carbonato|alcohol|agua oxigenada|suavizante|jabon (de |en )?polvo)/i.test(n);
+  // 2) Problema descrito (síntoma + pregunta) que requiere diagnóstico, no una ficha de datos
+  const esProblemaDescrito = /(bruma|velo|residuo|residuos|manch|olor|apest|sucio|quedo|quedara|sigue|persiste|apareci|se form|no sale|no quita|no se (va|quita|sale)|despues de|después|tras (el )?(decap|limpi)|problema|dañad|dano|deteriorad|marcas|rayas)/i.test(n) && /(que uso|que producto|que aplico|que hago|como (lo )?(quito|limpio|soluciono|arreglo|resuelvo|devuelvo)|recomienda|debo usar|mejor opcion|mejor producto)/i.test(n);
+  if (mezclaExterna) {
+    return { exito: false, alternativa: `<div class="rounded-xl p-3 mb-2 border" style="background:#FEF2F2;border-color:#FECACA;"><b class="text-red-700 text-sm">⚠️ Reglas de seguridad con mezclas caseras</b></div><b>Cloro/lejía (hipoclorito):</b><br>✅ Con <b>agua sola</b> — esa es su forma correcta de diluirse.<br>❌ Con <b>detergentes, amoníaco, ácidos o desengrasantes</b> — pueden liberar gases tóxicos (cloraminas / gas cloro).<br>✅ Enjuaga con agua limpia después de cada aplicación.<br><br><i>Con confirmación del catálogo, usa el producto según su etiqueta y nunca improvises mezclas.</i>` };
+  }
+  if (esProblemaDescrito) {
+    return { exito: false }; // la IA diagnostica y recomienda el producto correcto del catálogo
+  }
+
   if (esSaludo && !confAlta && !esCreadorDaniel) {
     const g = saludoAleatorio();
     return { exito: true, respuesta: `<b>${g.t}</b><br>${g.m}<br><br>Puedo ayudarte con:<br>• Diluciones y medidas exactas<br>• Tiempos de contacto<br>• Métodos de aplicación paso a paso<br>• Casos reales resueltos (manchas, olores, incidentes)<br>• Errores comunes y frecuencia de uso<br>• Patógenos que eliminan<br>• Primeros auxilios y seguridad<br>• Compatibilidad entre productos<br>• FastDraw y catálogo<br><br>¿Qué necesitas?` };
@@ -1150,17 +1163,27 @@ DOCUMENTACIÓN OFICIAL (datos verificados, no inventar otros):
 - Si te preguntan quién es él, quién te creó, quién te hizo/programó, quién inventó VIERNES o quién hizo este catálogo, responde SIEMPRE con esa información (nunca digas que no lo sabes ni que eres de otra empresa ni de OpenAI/Google). Razona y adapta el enfoque según la pregunta: su rol, tu creación, el catálogo, cómo trabajó en él, etc. Puedes responder de muchas formas distintas cada vez. No inventes datos personales adicionales (teléfono, correo, dirección, etc.).
 - Si preguntan "¿quién eres?" o "¿qué es VIERNES?", explica que eres VIERNES, asistente técnico creado por el Señor Daniel para guiar el manejo seguro de los químicos del catálogo.
 
+MODO DE RAZONAMIENTO (razona antes de responder):
+- Entiende qué necesita realmente el operario: ¿un dato técnico?, ¿diagnosticar un problema?, ¿una emergencia?, ¿una comparación?, ¿un concepto de química?
+- Si describen un problema (bruma, residuo, mancha, olor, daño), identifica la CAUSA probable y elige el producto del catálogo que resuelve esa causa — no des la ficha de un producto que no ataca el problema.
+- Explica brevemente el porqué técnico (pH, tipo de suciedad, química) cuando ayude al operario a hacerlo bien.
+- No repitas datos genéricos si no responden la pregunta concreta.
+
 INSTRUCCIONES:
 1. Responde con TODA la información que tengas sobre los químicos del catálogo. No te limites a los datos de arriba: usa tu conocimiento general, fichas técnicas, buenas prácticas y cualquier detalle relevante (ingredientes, compatibilidades, comparaciones, manejo, riesgos, alternativas).
 2. Prioriza los productos DBS en tus recomendaciones, pero puedes mencionar otras marcas o fuentes cuando aporte precisión a la respuesta.
 3. Español neutro, profesional y completo (hasta 400 palabras cuando el tema lo requiera).
 4. Escribe nombres EXACTOS de los productos.
-5. Responde con pasos numerados cuando la pregunta sea sobre eliminar manchas, olores o problemas específicos.
-6. Si no tienes información fiable, dilo con honestidad e indica dónde consultarla (ficha técnica o SDS del fabricante).`;
+5. Responde con pasos numerados cuando la pregunta sea sobre eliminar manchas, olores o problemas específicos, con diluciones exactas y tiempos.
+6. Si no tienes información fiable, dilo con honestidad e indica dónde consultarla (ficha técnica o SDS del fabricante).
+7. Puedes responder preguntas generales de limpieza y química (pH, desinfección, mezclas peligrosas, giros comunes del oficio) con tu conocimiento general, conectándolas a los productos del catálogo cuando aporta valor.`;
 }
 
 // Convierte tablas markdown (| col | col |) a HTML para mostrarlas en el chat
 function mdATablas(t) {
+  // Encabezados markdown (#, ##, ...) → negrita; separadores --- → línea
+  t = t.replace(/^#{1,4}\s*([^\n#]+)$/gm, "<b>$1</b>");
+  t = t.replace(/^---+$/gm, "<hr>");
   return t.replace(/(?:^|\n)((?:\|[^\n]*\|\s*\n?)+)/g, (m, bloque) => {
     const filas = bloque.trim().split("\n").map(f => f.trim()).filter(f => f.startsWith("|"));
     if (filas.length < 2) return m;
@@ -1234,28 +1257,64 @@ async function fetchCORS(url, opts, onP) {
   throw new Error(errs.join('\n'));
 }
 
+function systemPromptCompacto() {
+  const cat = productos.map(p => {
+    const ex = datosExtra[p.id] || {};
+    return `${p.nombre} (${p.fabricante}): ${p.uso}. pH ${p.ph} · Dilución ${p.dilucion} · Tiempo ${p.tiempo} · Superficies: ${p.superficies} · Precaución: ${p.precaucion}` + (ex.medidas ? ` · Medidas exactas: ${ex.medidas}` : "");
+  }).join("\n");
+  return `Eres VIERNES, asistente técnico de DBS (Diversified Building Services), creado por el Sr. Daniel Naula —él también hizo posible este catálogo de químicos.
+
+CATÁLOGO DBS:
+${cat}
+
+INSTRUCCIONES:
+- Razona la pregunta: identifica qué necesita el operario (dato técnico, diagnóstico de un problema, emergencia o comparación).
+- Si describen un problema (mancha, residuo, olor, daño), diagnostica la causa probable y da el producto del catálogo correcto con su dilución exacta y pasos numerados.
+- Prioriza los productos del catálogo; puedes usar tu conocimiento general para completar con precisión.
+- Español, hasta 300 palabras. Si no tienes datos fiables, dilo con honestidad e indica dónde consultar (ficha técnica o SDS).`;
+}
+
 async function consultarGroq(texto, onP) {
   if (!GROQ_API_KEY || GROQ_API_KEY.includes("PEGA_AQUI") || GROQ_API_KEY.trim() === "") throw new Error("API Key no configurada");
-  const msgs = [{ role: "system", content: systemPrompt() }];
-  historial.slice(-6).forEach(h => msgs.push({ role: h.role === "model" ? "assistant" : "user", content: h.text }));
-  msgs.push({ role: "user", content: texto });
   const url = "https://api.groq.com/openai/v1/chat/completions";
-  const errs = [];
-  for (const modelo of MODELOS_GROQ) {
-    try {
-      if (onP) onP(`IA · ${modelo.split('-').slice(0,3).join('-')}…`);
-      const { res, via } = await fetchCORS(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_API_KEY}` }, body: JSON.stringify({ model: modelo, messages: msgs, temperature: 0.7, max_tokens: 2500 }) }, onP);
-      const raw = await res.text();
-      if (!res.ok) { errs.push(`${modelo}: HTTP ${res.status}`); continue; }
-      let data;
-      try { data = JSON.parse(raw); } catch (e) { errs.push(`${modelo}: JSON inválido`); continue; }
-      const msg = data.choices?.[0]?.message;
-      const content = (msg?.content || msg?.reasoning_content || "").trim();
-      if (content) return { texto: content, modelo, via };
-      errs.push(`${modelo}: sin contenido`);
-    } catch (e) { errs.push(`${modelo}: ${e.message.split('\n')[0]}`); }
+  const construirMsgs = (prompt) => {
+    const msgs = [{ role: "system", content: prompt }];
+    historial.slice(-6).forEach(h => msgs.push({ role: h.role === "model" ? "assistant" : "user", content: h.text }));
+    msgs.push({ role: "user", content: texto });
+    return msgs;
+  };
+  const errores = [];
+  let huboCuota = false;
+  // Hasta 2 pasadas por la cadena de modelos; si todo falló por cuota, espera y reintenta una vez
+  for (let pasada = 0; pasada < 2; pasada++) {
+    for (let i = 0; i < MODELOS_GROQ.length; i++) {
+      const modelo = MODELOS_GROQ[i];
+      try {
+        if (onP) onP(`IA · ${modelo.split('-').slice(0,3).join('-')}…${pasada > 0 ? " (reintento)" : ""}`);
+        // El modelo principal usa el prompt completo; los respaldos pequeños usan uno compacto (algunos rechazan payloads grandes con HTTP 413)
+        const prompt = i === 0 ? systemPrompt() : systemPromptCompacto();
+        const { res, via } = await fetchCORS(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_API_KEY}` }, body: JSON.stringify({ model: modelo, messages: construirMsgs(prompt), temperature: 0.7, max_tokens: 2500 }) }, onP);
+        const raw = await res.text();
+        if (!res.ok) { if (res.status === 429) huboCuota = true; errores.push(`${modelo}: HTTP ${res.status}`); continue; }
+        let data;
+        try { data = JSON.parse(raw); } catch (e) { errores.push(`${modelo}: JSON inválido`); continue; }
+        const msg = data.choices?.[0]?.message;
+        const content = (msg?.content || msg?.reasoning_content || "").trim();
+        if (content) return { texto: content, modelo, via };
+        errores.push(`${modelo}: sin contenido`);
+      } catch (e) {
+        const m = String(e.message);
+        if (m.includes("429")) huboCuota = true;
+        errores.push(`${modelo}: ${m.split('\n')[0]}`);
+      }
+    }
+    if (pasada === 0 && huboCuota) {
+      if (onP) onP("Cuota momentánea — esperando la IA…");
+      await new Promise(r => setTimeout(r, 12000));
+      errores.push("— reintento tras espera —");
+    }
   }
-  throw new Error(errs.join('\n'));
+  throw new Error(errores.join('\n'));
 }
 
 async function buscarEnWeb(texto) {
@@ -1267,7 +1326,7 @@ async function buscarEnWeb(texto) {
     const data = await res.json();
     const resultados = (data.query && data.query.search) || [];
     if (resultados.length) {
-      let r = `<b>🌐 Resultados de la web (Wikipedia):</b><br><br>`;
+      let r = `<b>🔎 Búsqueda web (Wikipedia)</b> <span class="text-[9px] text-amber-300">— la IA no está disponible en este momento; revisa si estas páginas responden tu pregunta</span>:<br><br>`;
       resultados.forEach(it => {
         const snippet = escaparHTML((it.snippet || "").replace(/<[^>]+>/g, ""));
         const url = "https://es.wikipedia.org/wiki/" + encodeURIComponent(it.title.replace(/ /g, "_"));
@@ -1285,7 +1344,7 @@ async function buscarEnWeb(texto) {
     const data = await res.json();
     if (data.AbstractText) {
       const urlDDG = /^https?:\/\//i.test(data.AbstractURL || "") ? data.AbstractURL : "";
-      return `<b>🌐 Resultado web (DuckDuckGo):</b><br><br>${escaparHTML(data.AbstractText)}${urlDDG ? `<br><br><a href="${escaparHTML(urlDDG)}" target="_blank" rel="noopener noreferrer" style="color:#1B6BB5;text-decoration:underline">${escaparHTML(urlDDG)}</a>` : ""}`;
+      return `<b>🔎 Búsqueda web (DuckDuckGo)</b> <span class="text-[9px] text-amber-300">— la IA no está disponible en este momento</span>:<br><br>${escaparHTML(data.AbstractText)}${urlDDG ? `<br><br><a href="${escaparHTML(urlDDG)}" target="_blank" rel="noopener noreferrer" style="color:#1B6BB5;text-decoration:underline">${escaparHTML(urlDDG)}</a>` : ""}`;
     }
   } catch (e) { /* sin resultados */ }
 
@@ -1435,6 +1494,7 @@ async function enviarMensaje(e) {
   const esAmpliada = /\b(investiga|investigar|investigame|busca informacion|busca informacion adicional|buscar informacion|informacion adicional|mas informacion|informacion completa|completa sobre|todo sobre|dime todo|amplia la informacion|profundiza)\b/i.test(normalizar(texto));
 
   const local = esAmpliada ? { exito: false } : intentarRespuestaLocal(texto);
+  let alternativaLocal = (local && local.alternativa) || null;
 
   // Búsqueda web explícita ("busca en google ...")
   if (/\b(busca en google|buscar en google|busca en la web|buscar en la web|buscar en internet)\b/i.test(texto)) {
@@ -1483,7 +1543,7 @@ async function enviarMensaje(e) {
         <span class="text-[10px] font-black tracking-widest" style="color: var(--brand-orange);">VIERNES</span>
         <span class="typing-dots"><span></span><span></span><span></span></span>
       </div>
-      <p class="text-[10px] text-slate-400 mt-1">Sin resultados en base local. Consultando IA…</p>
+      <p class="text-[10px] text-slate-400 mt-1">Razonando con la IA…</p>
       <p class="text-[10px] text-slate-400 mt-0.5" id="progresoTexto"></p>
     </div>`;
   cm.appendChild(bm);
@@ -1536,6 +1596,18 @@ async function enviarMensaje(e) {
 
   // Fallback final: búsqueda web si la IA no está disponible
   if (!local.exito && !groqExito) {
+    // La base local sí tiene una respuesta alternativa útil (p. ej. reglas de seguridad con cloro) → mostrarla antes que la búsqueda web
+    if (alternativaLocal) {
+      cuerpo = alternativaLocal;
+      st.textContent = "Base local";
+      sd.className = "w-1.5 h-1.5 rounded-full bg-amber-400 inline-block";
+      const altBubble = bm.querySelector(".bg-slate-800");
+      if (altBubble) altBubble.innerHTML = `<div class="text-xs text-slate-200 leading-relaxed">${limpiarHTML(cuerpo)}</div>`;
+      cm.scrollTop = cm.scrollHeight;
+      historial.push({ role: "user", text: texto });
+      historial.push({ role: "model", text: alternativaLocal.replace(/<[^>]+>/g, "") });
+      return;
+    }
     const web = await buscarEnWeb(texto);
     if (web) {
       cuerpo = web;
