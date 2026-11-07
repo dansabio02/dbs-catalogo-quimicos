@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#0F4C8C">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src https:; media-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-src 'none'">
@@ -39,15 +39,26 @@
   .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
   @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
   @media screen and (max-width: 767px) { input, select, textarea { font-size: 16px !important; } }
-  @supports (padding: env(safe-area-inset-bottom)) { .safe-bottom { padding-bottom: env(safe-area-inset-bottom); } }
+  @supports (padding: env(safe-area-inset-bottom)) {
+    .safe-bottom { padding-bottom: max(0.75rem, env(safe-area-inset-bottom)) !important; }
+  }
+  /* En móvil con chat abierto: bloquear el scroll de fondo */
+  body.chat-fijo { overflow: hidden; }
   @media (max-width: 640px) {
     .card-hover:hover { transform: none; }
+    /* El chat usa el área VISIBLE del viewport (por encima del teclado móvil): */
+    /* visualViewport actualiza --vv-height/--vv-top cuando el teclado aparece/desaparece */
     #chatWindow.abierto {
-      position: fixed !important; inset: 0 !important;
-      width: 100vw !important; height: 100dvh !important;
-      max-height: 100dvh !important; border-radius: 0 !important;
+      position: fixed !important;
+      left: 0 !important; right: 0 !important;
+      top: var(--vv-top, 0px) !important; bottom: auto !important;
+      width: 100vw !important;
+      height: var(--vv-height, 100dvh) !important;
+      max-height: none !important;
+      border-radius: 0 !important;
       margin: 0 !important; z-index: 100 !important;
     }
+    #chatMessages { overscroll-behavior: contain; }
   }
   @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-6px); } }
   .animate-float { animation: float 3.2s ease-in-out infinite; }
@@ -165,7 +176,7 @@
 
 <aside class="fixed bottom-4 right-4 z-50 flex flex-col items-end safe-bottom">
   <div id="chatWindow" class="hidden w-[95vw] sm:w-[440px] h-[640px] max-h-[90vh] bg-slate-900 rounded-2xl shadow-2xl flex flex-col overflow-hidden mb-3 border border-slate-700">
-    <div class="p-4 flex items-center justify-between shrink-0 text-white relative overflow-hidden" style="background: linear-gradient(135deg, #0A3A6B 0%, #0F4C8C 50%, #1B6BB5 100%);">
+    <div class="p-4 flex items-center justify-between shrink-0 text-white relative overflow-hidden chat-header-safe" style="background: linear-gradient(135deg, #0A3A6B 0%, #0F4C8C 50%, #1B6BB5 100%); padding-top: max(1rem, env(safe-area-inset-top));">
       <div class="absolute inset-0 dot-grid opacity-20"></div>
       <div class="relative flex items-center gap-3">
         <div class="relative w-11 h-11 rounded-xl flex items-center justify-center border border-white/20 backdrop-blur-sm overflow-hidden scanline" style="background: linear-gradient(135deg, #E8761C, #C75F0F);">
@@ -756,11 +767,51 @@ function toggleChat() {
   const w = document.getElementById("chatWindow");
   const abrir = w.classList.contains("hidden");
   w.classList.toggle("hidden");
-  if (window.innerWidth <= 640) w.classList.toggle("abierto");
+  if (window.innerWidth <= 640) {
+    w.classList.toggle("abierto");
+    // Bloquear el scroll de fondo mientras el chat esté abierto en móvil
+    document.body.classList.toggle("chat-fijo", w.classList.contains("abierto"));
+  } else if (abrir) {
+    document.body.classList.remove("chat-fijo");
+  }
   const dot = document.getElementById("notifDot");
   if (dot) dot.classList.add('hidden');
-  if (abrir) actualizarSaludoInicial(); // nuevo saludo aleatorio cada vez que se abre
+  if (abrir) {
+    actualizarSaludoInicial(); // nuevo saludo aleatorio cada vez que se abre
+    ajustarChatViewport();     // medir el área visible (por encima del teclado si ya está abierto)
+  }
 }
+
+// ═══════════════════════════════════════════════════════════════
+// MÓVIL: el chat usa el ÁREA VISIBLE del viewport (no lo tapa el teclado)
+// Cuando el teclado aparece, visualViewport se encoge y el chat se acorta,
+// manteniendo el campo de texto siempre en pantalla (iOS + Android).
+// ═══════════════════════════════════════════════════════════════
+function ajustarChatViewport() {
+  const w = document.getElementById("chatWindow");
+  const raiz = document.documentElement;
+  if (!w || !w.classList.contains("abierto") || window.innerWidth > 640) {
+    raiz.style.removeProperty("--vv-height");
+    raiz.style.removeProperty("--vv-top");
+    return;
+  }
+  const vv = window.visualViewport;
+  if (!vv) return;
+  raiz.style.setProperty("--vv-height", Math.round(vv.height) + "px");
+  raiz.style.setProperty("--vv-top", Math.round(vv.offsetTop) + "px");
+  const cm = document.getElementById("chatMessages");
+  if (cm) cm.scrollTop = cm.scrollHeight; // mantener el último mensaje visible
+}
+if (window.visualViewport) {
+  window.visualViewport.addEventListener("resize", ajustarChatViewport);
+  window.visualViewport.addEventListener("scroll", ajustarChatViewport);
+}
+window.addEventListener("resize", ajustarChatViewport);
+window.addEventListener("orientationchange", ajustarChatViewport);
+// Al enfocar el campo de texto, el teclado se anima ~300ms: medir de nuevo al terminar
+document.addEventListener("focusin", (e) => { if (e.target && e.target.id === "chatInput") setTimeout(ajustarChatViewport, 350); });
+document.addEventListener("focusout", (e) => { if (e.target && e.target.id === "chatInput") setTimeout(ajustarChatViewport, 250); });
+
 function preguntar(nombre) { const w = document.getElementById("chatWindow"); if (w.classList.contains("hidden")) toggleChat(); enviarMensajeRapido(`¿Para qué se usa exactamente ${nombre}?`); }
 function enviarMensajeRapido(texto) { document.getElementById("chatInput").value = texto; enviarMensaje(new Event('submit')); }
 function limpiarHistorial() { historial = []; const cm = document.getElementById("chatMessages"); cm.innerHTML = `<div class="text-center text-[11px] text-slate-400 py-3"><i class="fa-solid fa-rotate-right mr-1"></i> Nueva conversación</div>`; }
